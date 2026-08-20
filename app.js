@@ -337,7 +337,7 @@
 
     const mins = minsUntil(next.item.eta, now);
     const parts = waitParts(mins);
-    el.className = `hero${parts.soon ? " soon" : ""}`;
+    el.className = `hero ${routeClass(next.item.route)}${parts.soon ? " soon" : ""}`;
     el.innerHTML = `
       <div class="hero-copy">
         <p class="hero-kicker">下一班 · ${escapeHtml(cfg.board.name)}</p>

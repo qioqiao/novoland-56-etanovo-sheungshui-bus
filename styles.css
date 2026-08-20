@@ -314,7 +314,7 @@ time, .num { font-variant-numeric: tabular-nums; }
 .hero {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 16px;
+  gap: 0;
   align-items: stretch;
   margin-top: 22px;
   padding: 0;
@@ -326,32 +326,39 @@ time, .num { font-variant-numeric: tabular-nums; }
 }
 
 .hero-copy {
-  padding: 22px 4px 20px 20px;
+  min-width: 0;
+  padding: 22px 12px 20px 20px;
 }
 
-.hero-eta {
-  min-width: 108px;
-  background: #0c0d12;
+.hero .eta-badge {
+  min-width: 100px;
+  padding-right: 16px;
+  background: var(--ink);
   color: var(--chip);
 }
 
-.hero-eta.soon {
-  background: var(--soon);
-  color: #fff;
+.hero.is-56 .eta-badge,
+.hero.is-56 .eta-badge.soon {
+  color: #6aa8ff;
 }
 
-.hero-eta .wait-num {
-  font-size: clamp(36px, 8vw, 52px);
+.hero.is-56a .eta-badge,
+.hero.is-56a .eta-badge.soon {
+  color: #ff8a3d;
 }
 
-.hero-eta .wait-unit {
+.hero .eta-badge .wait-num {
+  font-size: clamp(40px, 9vw, 56px);
+}
+
+.hero .eta-badge .wait-unit {
   color: inherit;
   opacity: 0.78;
 }
 
 .hero-kicker {
   margin: 0;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.14em;
   font-weight: 600;
   color: #b8bcc6;
@@ -359,13 +366,13 @@ time, .num { font-variant-numeric: tabular-nums; }
 
 .hero-wait {
   margin: 10px 0 0;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 650;
 }
 
 .hero-time {
   margin: 8px 0 0;
-  font-size: clamp(28px, 6vw, 40px);
+  font-size: clamp(32px, 7vw, 44px);
   font-weight: 750;
   letter-spacing: -0.04em;
   line-height: 1;
@@ -375,16 +382,16 @@ time, .num { font-variant-numeric: tabular-nums; }
 .hero-route {
   display: inline-block;
   margin: 12px 8px 0 0;
-  padding: 3px 8px;
+  padding: 4px 9px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   vertical-align: middle;
 }
 
 .hero-dest {
   margin: 10px 0 0;
-  font-size: 14px;
+  font-size: 15px;
   color: #c5c8d0;
 }
 
@@ -542,21 +549,23 @@ time, .num { font-variant-numeric: tabular-nums; }
   color: var(--muted);
 }
 
-.eta-badge.soon {
-  background: var(--soon-bg);
-  color: var(--soon);
+.trip.is-56 .eta-badge.soon,
+.trip.is-56 .eta-badge.soon .wait-unit,
+.arrival.is-56 .eta-badge.soon,
+.arrival.is-56 .eta-badge.soon .wait-unit {
+  color: var(--r56);
 }
 
-.eta-badge.soon .wait-unit { color: var(--soon); }
-
-.hero-eta.soon {
-  background: var(--soon);
-  color: #fff;
+.trip.is-56a .eta-badge.soon,
+.trip.is-56a .eta-badge.soon .wait-unit,
+.arrival.is-56a .eta-badge.soon,
+.arrival.is-56a .eta-badge.soon .wait-unit {
+  color: var(--r56a);
 }
 
-.hero-eta.soon .wait-unit {
-  color: #fff;
-  opacity: 0.9;
+.hero .eta-badge.soon .wait-unit {
+  color: inherit;
+  opacity: 0.78;
 }
 
 .dest-src {
@@ -674,13 +683,9 @@ time, .num { font-variant-numeric: tabular-nums; }
 
   .spine.reverse .bus { animation-name: bus-y-rev; }
 
-  .hero {
-    grid-template-columns: 1fr;
-  }
+  .hero-copy { padding: 20px 8px 20px 18px; }
 
-  .hero-copy { padding: 20px 20px 12px; }
-
-  .hero-eta { min-height: 92px; }
+  .hero .eta-badge { min-width: 88px; padding-right: 14px; }
 
   .trip, .arrival {
     grid-template-columns: 48px 1fr 80px;
