@@ -49,3 +49,19 @@ npm start
 - 班表推算：運輸署 2024-07-28 服務調整，以及公開班距資料
 
 約每 30 秒自動更新。
+
+## 網站圖示
+
+瀏覽器分頁圖示是根目錄的 `favicon.svg`（左藍 56、右橙 56A）。要換成自己的圖：
+
+1. 準備一張正方形 PNG 或 SVG，建議至少 180×180
+2. 放到專案根目錄，檔名例如 `favicon.png`
+3. 兩個 HTML 的 `<head>` 改成：
+
+```html
+<link rel="icon" href="./favicon.png" type="image/png" />
+<link rel="apple-touch-icon" href="./favicon.png" />
+```
+
+4. `git add`、`commit`、`push` 之後，GitHub Pages 更新即可。手機若已加到主畫面，可能要刪掉舊圖示再加一次才會刷新。
+
