@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="dir-out">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="view-transition" content="same-origin" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#eceae4" />
+  <title>去上水 · 城巴 56／56A</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body data-dir="out">
+  <div class="frame">
+    <header class="top">
+      <div class="brand">
+        <span class="mark r56">56</span>
+        <span class="mark r56a">56A</span>
+        <span class="brand-name">城巴實時</span>
+      </div>
+      <div class="clock-wrap">
+        <span class="pulse" id="liveDot" hidden></span>
+        <time id="clock">--:--</time>
+      </div>
+    </header>
+
+    <nav class="dirs" aria-label="行程方向">
+      <a class="on" href="./index.html" aria-current="page">去上水</a>
+      <a href="./inbound.html">回 NOVO LAND</a>
+    </nav>
+
+    <section class="journey" aria-label="行程方向">
+      <div class="stop">
+        <p class="kicker">起點 · 上車</p>
+        <h1 class="place place-novo">NOVO LAND</h1>
+        <p class="sub">欣寶路</p>
+      </div>
+      <div class="spine" aria-hidden="true">
+        <span class="rail"></span>
+        <span class="bus"></span>
+      </div>
+      <div class="stop end">
+        <p class="kicker">終點 · 落車</p>
+        <p class="place place-shs">上水站</p>
+        <p class="sub">新運路 D2</p>
+      </div>
+    </section>
+
+    <article class="hero empty" id="hero" aria-live="polite">
+      <p class="hero-kicker">下一班</p>
+      <p class="hero-wait">讀取中</p>
+      <p class="hero-time">--:--</p>
+      <p class="hero-dest">正在連接城巴開放數據</p>
+    </article>
+
+    <section class="block">
+      <div class="head">
+        <h2>即將開出</h2>
+        <p id="rideHint">預計抵達＝上車時間＋車程估算</p>
+      </div>
+      <div class="trips" id="trips"></div>
+    </section>
+
+    <section class="block">
+      <div class="head">
+        <h2>終點實時到站</h2>
+        <p>已在途中、即將到達上水站的班次</p>
+      </div>
+      <div class="arrivals" id="arrivals"></div>
+    </section>
+
+    <p class="status" id="status">正在讀取實時班次…</p>
+
+    <footer class="foot">
+      <button class="btn" type="button" id="refresh">重新載入</button>
+      <p>資料來自香港政府開放數據 · 城巴 ETA · 約每 30 秒更新</p>
+    </footer>
+  </div>
+  <script src="./app.js"></script>
+</body>
+</html>

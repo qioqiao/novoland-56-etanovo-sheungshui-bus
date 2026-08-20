@@ -1,0 +1,8 @@
+{
+  "name": "grok4.6_56_44A",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs"
+  }
+}
