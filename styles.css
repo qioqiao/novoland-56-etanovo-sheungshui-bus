@@ -61,6 +61,8 @@ html { background: var(--bg); }
 
 body {
   min-height: 100dvh;
+  min-height: 100svh;
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) 0 env(safe-area-inset-left, 0px);
   color: var(--ink);
   background: var(--bg);
   font-family: -apple-system, "Segoe UI", "PingFang HK", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
@@ -75,7 +77,7 @@ time, .num { font-variant-numeric: tabular-nums; }
 .frame {
   width: min(var(--max), calc(100% - 2 * var(--pad)));
   margin: 0 auto;
-  padding: 20px 0 calc(28px + env(safe-area-inset-bottom));
+  padding: 20px 0 calc(28px + env(safe-area-inset-bottom, 0px));
 }
 
 /* ── 進場 ─────────────────────────────────── */

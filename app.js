@@ -493,7 +493,20 @@
     paint();
   }
 
+  function syncStandaloneChrome() {
+    const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const color = dark ? "#121318" : "#eceae4";
+    const bar = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+    const theme = document.querySelector('meta[name="theme-color"]:not([media])');
+    if (bar) bar.setAttribute("content", dark ? "black" : "default");
+    if (theme) theme.setAttribute("content", color);
+  }
+
   function bind() {
+    syncStandaloneChrome();
+    const scheme = window.matchMedia("(prefers-color-scheme: dark)");
+    if (scheme.addEventListener) scheme.addEventListener("change", syncStandaloneChrome);
+    else if (scheme.addListener) scheme.addListener(syncStandaloneChrome);
     renderClock();
     setInterval(renderClock, 1000);
     $("refresh").addEventListener("click", refresh);
