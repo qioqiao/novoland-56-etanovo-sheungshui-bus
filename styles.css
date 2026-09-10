@@ -1297,11 +1297,10 @@ select:focus {
     color 250ms ease,
     border-color 250ms ease;
 }
-.topbar,
 .page-heading,
 .route-tabs,
 .workspace {
-  animation: surface-in 520ms var(--motion-ease) both;
+  animation: surface-in 520ms var(--motion-ease) backwards;
 }
 .page-heading {
   animation-delay: 45ms;
@@ -1417,4 +1416,19 @@ details[open] > :not(summary) {
   .more-options-content .variant-wrap {
     margin: 0 0 12px;
   }
+}
+
+/* The standalone iOS scroll-edge effect extends below the reported safe area.
+   Keep the clock/logo outside that strip without enlarging the Safari header. */
+html.ios-standalone,
+html.ios-standalone body {
+  background: var(--bg);
+}
+html.ios-standalone .shell {
+  padding-top: calc(env(safe-area-inset-top, 0px) + 36px);
+}
+.topbar {
+  animation: none;
+  transform: none;
+  background: var(--bg);
 }
