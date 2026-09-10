@@ -1297,10 +1297,11 @@ select:focus {
     color 250ms ease,
     border-color 250ms ease;
 }
+.topbar,
 .page-heading,
 .route-tabs,
 .workspace {
-  animation: surface-in 520ms var(--motion-ease) backwards;
+  animation: surface-in 520ms var(--motion-ease) both;
 }
 .page-heading {
   animation-delay: 45ms;
@@ -1415,67 +1416,5 @@ details[open] > :not(summary) {
   }
   .more-options-content .variant-wrap {
     margin: 0 0 12px;
-  }
-}
-
-/* Keep iOS's native root scroll view empty at its blurred top edge.
-   Only the inset application area scrolls; content is clipped below that edge. */
-html.ios-standalone {
-  --ios-top-guard: 40px;
-  height: 100%;
-  overflow: hidden;
-  background: var(--bg);
-}
-html.ios-standalone body {
-  height: 100%;
-  overflow: hidden;
-  background: var(--bg);
-}
-html.ios-standalone .shell {
-  position: fixed;
-  inset: var(--ios-top-guard) 0 0;
-  width: auto;
-  margin: 0;
-  padding: 12px max(16px, env(safe-area-inset-right, 0px))
-    max(24px, env(safe-area-inset-bottom, 0px))
-    max(16px, env(safe-area-inset-left, 0px));
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior-y: none;
-  scrollbar-gutter: stable;
-}
-html.ios-standalone .topbar {
-  max-width: 1120px;
-  margin-inline: auto;
-  gap: 12px;
-  padding-bottom: 12px;
-}
-html.ios-standalone main {
-  max-width: 1120px;
-  margin-inline: auto;
-}
-html.ios-standalone .hk-clock {
-  margin-left: auto;
-}
-html.ios-standalone .hk-clock > span {
-  display: none;
-}
-html.ios-standalone .page-heading {
-  display: none;
-}
-html.ios-standalone .route-tabs {
-  margin-top: 12px;
-}
-html.ios-standalone .brand > span:last-child {
-  display: none;
-}
-.topbar {
-  animation: none;
-  transform: none;
-  background: var(--bg);
-}
-@media (orientation: landscape) {
-  html.ios-standalone {
-    --ios-top-guard: 16px;
   }
 }

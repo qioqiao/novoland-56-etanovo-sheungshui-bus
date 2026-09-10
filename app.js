@@ -28,11 +28,6 @@ const esc = (s) =>
 const text = (id, value) => {
   if ($(id).textContent !== value) $(id).textContent = value;
 };
-// Keep the standalone header below the native scroll-edge overlay.
-if (document.documentElement.classList.contains("ios-standalone")) {
-  document.querySelector(".topbar").append($("connection"));
-}
-
 // Keep unchanged ETA markup in place; animate only meaningful state changes.
 const motionPreference = window.matchMedia?.(
   "(prefers-reduced-motion: reduce)",
