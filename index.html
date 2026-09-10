@@ -1,89 +1,210 @@
-<!DOCTYPE html>
-<html lang="zh-Hant" class="dir-out">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="view-transition" content="same-origin" />
-  <meta name="color-scheme" content="light dark" />
-  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#eceae4" />
-  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121318" />
-  <meta name="theme-color" content="#eceae4" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="城巴56" />
-  <title>去上水 · 城巴 56／56A</title>
-  <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
-  <link rel="manifest" href="./manifest.json" />
-  <link rel="stylesheet" href="./styles.css" />
-</head>
-<body data-dir="out">
-  <div class="frame">
-    <header class="top">
-      <div class="brand">
-        <span class="mark r56">56</span>
-        <span class="mark r56a">56A</span>
-        <span class="brand-name">城巴實時</span>
-      </div>
-      <div class="clock-wrap">
-        <span class="pulse" id="liveDot" hidden></span>
-        <time id="clock">--:--</time>
-      </div>
-    </header>
-
-    <nav class="dirs" aria-label="行程方向">
-      <a class="on" href="./index.html" aria-current="page">去上水</a>
-      <a href="./inbound.html">回 NOVO LAND</a>
-    </nav>
-
-    <section class="journey" aria-label="行程方向">
-      <div class="stop">
-        <p class="kicker">起點 · 上車</p>
-        <h1 class="place place-novo">NOVO LAND</h1>
-        <p class="sub">欣寶路</p>
-      </div>
-      <div class="spine" aria-hidden="true">
-        <span class="rail"></span>
-        <span class="bus"></span>
-      </div>
-      <div class="stop end">
-        <p class="kicker">終點 · 落車</p>
-        <p class="place place-shs">上水站</p>
-        <p class="sub">新運路 D2</p>
-      </div>
-    </section>
-
-    <article class="hero empty" id="hero" aria-live="polite">
-      <p class="hero-kicker">下一班</p>
-      <p class="hero-wait">讀取中</p>
-      <p class="hero-time">--:--</p>
-      <p class="hero-dest">正在連接城巴開放數據</p>
-    </article>
-
-    <section class="block">
-      <div class="head">
-        <h2>即將開出</h2>
-        <p id="rideHint">預計抵達＝上車時間＋車程估算</p>
-      </div>
-      <div class="trips" id="trips"></div>
-    </section>
-
-    <section class="block">
-      <div class="head">
-        <h2>終點實時到站</h2>
-        <p>已在途中、即將到達上水站的班次</p>
-      </div>
-      <div class="arrivals" id="arrivals"></div>
-    </section>
-
-    <p class="status" id="status">正在讀取實時班次…</p>
-
-    <footer class="foot">
-      <button class="btn" type="button" id="refresh">重新載入</button>
-      <p>資料來自香港政府開放數據 · 城巴 ETA · 約每 30 秒更新</p>
-    </footer>
-  </div>
-  <script src="./app.js"></script>
-</body>
+<!doctype html>
+<html lang="zh-Hant-HK">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#f5f6f8" />
+    <meta
+      name="description"
+      content="56、56A、74K、75F 巴士到站時間。查詢 NOVO LAND、上水、大埔墟及教育大學的實時班次與預計抵達時間。"
+    />
+    <meta name="apple-mobile-web-app-title" content="就到站" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>就到站 · 我的巴士行程</title>
+    <link rel="icon" href="./favicon.svg?v=2" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=2" />
+    <link rel="manifest" href="./manifest.json?v=2" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip" href="#main">跳至到站資訊</a>
+    <div class="shell">
+      <header class="topbar">
+        <a class="brand" href="./index.html"
+          ><span class="brand-icon" aria-hidden="true">↗</span
+          ><span>就到站<small>我的巴士行程</small></span></a
+        >
+        <div class="hk-clock">
+          <span id="date">香港時間</span><time id="clock">--:--:--</time>
+        </div>
+      </header>
+      <main id="main">
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">常用路線 · 即時到站</p>
+            <h1>下一班，幾時到？</h1>
+          </div>
+          <span class="live-pill" id="connection">正在連線</span>
+        </div>
+        <nav class="route-tabs" aria-label="選擇巴士路線">
+          <button type="button" data-route="56" aria-pressed="true">
+            <span class="tab-number"
+              >56 <span class="tab-plus">/</span> 56A</span
+            ><span>NOVO LAND ↔ 上水</span>
+          </button>
+          <button type="button" data-route="74K" aria-pressed="false">
+            <span class="tab-number"
+              >74K <span class="tab-plus">/</span> 75F</span
+            ><span>大埔墟 ↔ 教育大學</span>
+          </button>
+        </nav>
+        <div class="workspace">
+          <section class="journey-panel" aria-labelledby="journeyHeading">
+            <div class="panel-title">
+              <h2 id="journeyHeading">我的行程</h2>
+              <span id="operator">城巴</span>
+            </div>
+            <div class="direction-control" role="group" aria-label="行程方向">
+              <button
+                type="button"
+                data-direction="out"
+                aria-pressed="true"
+                id="outLabel"
+              >
+                去上水</button
+              ><button
+                type="button"
+                data-direction="in"
+                aria-pressed="false"
+                id="inLabel"
+              >
+                回 NOVO LAND
+              </button>
+            </div>
+            <div class="variant-wrap" id="variantWrap" hidden>
+              <label for="variant" id="variantLabel">74K 行車版本</label
+              ><select id="variant"></select>
+              <p id="variantHint" class="small muted"></p>
+            </div>
+            <div class="station-fields">
+              <div class="station-field origin">
+                <label for="board">上車站</label
+                ><select id="board" aria-label="上車站"></select>
+              </div>
+              <div class="station-field destination">
+                <label for="alight">落車站</label
+                ><select id="alight" aria-label="落車站"></select>
+              </div>
+            </div>
+            <div class="journey-summary">
+              <span id="journeySummary">NOVO LAND → 上水站</span
+              ><span id="stopCount">直達行程</span>
+            </div>
+            <details class="more-options" id="moreOptions" open>
+              <summary>車程、沿途車站與服務資訊</summary>
+              <div class="more-options-content">
+                <details class="estimate-settings">
+                  <summary>
+                    車程估算 <span id="rideSummary">約 35 分鐘</span>
+                  </summary>
+                  <div class="estimate-input">
+                    <label for="ride" id="rideLabel">自訂車程（分鐘）</label
+                    ><input
+                      id="ride"
+                      type="number"
+                      min="1"
+                      max="180"
+                      step="1"
+                    /><button id="resetRide" type="button">還原</button>
+                  </div>
+                  <div class="estimate-input" id="ride75Wrap" hidden>
+                    <label for="ride75">75F 自訂車程（分鐘）</label
+                    ><input
+                      id="ride75"
+                      type="number"
+                      min="1"
+                      max="180"
+                      step="1"
+                    />
+                  </div>
+                  <p class="small muted">
+                    抵達時間＝上車
+                    ETA＋估算車程，不代表同一輛巴士的追蹤結果。路況可能令車程延長。
+                  </p>
+                </details>
+                <details class="stop-details" id="stopDetails">
+                  <summary>
+                    查看沿途車站 <span id="routeStopCount"></span>
+                  </summary>
+                  <div id="stopList"></div>
+                </details>
+                <details class="service-details">
+                  <summary>路線及服務說明</summary>
+                  <aside class="service-note">
+                    <span class="info-icon" aria-hidden="true">i</span>
+                    <div>
+                      <strong id="serviceTitle">56 與 56A 一起看</strong>
+                      <p id="serviceNote">按到站時間排列，方便選擇較早一班。</p>
+                      <a
+                        id="officialLink"
+                        target="_blank"
+                        rel="noopener"
+                        href="https://www.citybus.com.hk/"
+                        >官方路線資訊 ↗</a
+                      >
+                    </div>
+                  </aside>
+                </details>
+              </div>
+            </details>
+          </section>
+          <section class="results-panel" aria-label="巴士到站資訊">
+            <div class="results-heading">
+              <h2>即將到站 <span id="resultCount"></span></h2>
+              <button type="button" class="refresh" id="refresh">
+                <span aria-hidden="true">↻</span> 更新
+              </button>
+            </div>
+            <p id="alert" class="alert" role="status" hidden></p>
+            <div id="hero" class="island empty-island">
+              <span class="island-eyebrow">下一班 · 上車站</span>
+              <h3>正在讀取到站時間</h3>
+              <p>連接巴士公司開放數據…</p>
+              <div class="loading-track" aria-hidden="true"></div>
+            </div>
+            <div class="following-head">
+              <h3>接下來的班次</h3>
+              <span>上車時間 / 預計抵達</span>
+            </div>
+            <div id="trips" class="trip-list"></div>
+            <div class="refresh-status">
+              <span id="updated" role="status">等待首次更新</span
+              ><span id="nextRefresh">每 30 秒自動更新</span>
+              <div class="refresh-track">
+                <span id="refreshProgress"></span>
+              </div>
+            </div>
+            <details class="arrival-details">
+              <summary>
+                <span
+                  >落車站到站資訊<small
+                    >已在途中、即將抵達落車站的巴士</small
+                  ></span
+                ><span aria-hidden="true">＋</span>
+              </summary>
+              <p class="small muted">
+                這些班次與上方上車班次獨立，未必是同一輛巴士。
+              </p>
+              <div id="arrivals"></div>
+            </details>
+          </section>
+        </div>
+        <footer>
+          <p>香港時間 · 城巴 / 九巴開放數據</p>
+          <p>網站每 30 秒查詢 · 九巴資料約每分鐘更新</p>
+          <a
+            href="https://data.gov.hk/tc-data/dataset/hk-td-tis_21-etakmb"
+            target="_blank"
+            rel="noopener"
+            >資料來源 ↗</a
+          >
+        </footer>
+      </main>
+    </div>
+    <noscript>請啟用 JavaScript 以讀取實時到站時間。</noscript>
+    <script type="module" src="./app.js"></script>
+  </body>
 </html>

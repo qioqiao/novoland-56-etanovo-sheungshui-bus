@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-const BG = [0x14, 0x15, 0x1a, 0xff];
+const BG = [0x12, 0x14, 0x16, 0xff];
 const BLUE = [0x1f, 0x6f, 0xeb, 0xff];
 const ORANGE = [0xe8, 0x5d, 0x04, 0xff];
 
@@ -95,8 +95,38 @@ function render(size) {
     pixels[i * 4 + 2] = BG[2];
     pixels[i * 4 + 3] = BG[3];
   }
-  paintRoundRect(pixels, size, 4 * s, 7 * s, 11 * s, 18 * s, 2.5 * s, BLUE);
-  paintRoundRect(pixels, size, 17 * s, 7 * s, 11 * s, 18 * s, 2.5 * s, ORANGE);
+  const segments = [
+    [9, 23, 23, 9],
+    [10, 9, 23, 9],
+    [23, 9, 23, 22],
+  ];
+  for (let y = 0; y < size; y++)
+    for (let x = 0; x < size; x++) {
+      let hits = 0;
+      for (let sy = 0; sy < 4; sy++)
+        for (let sx = 0; sx < 4; sx++) {
+          const px = (x + (sx + 0.5) / 4) / s,
+            py = (y + (sy + 0.5) / 4) / s;
+          if (
+            segments.some(([ax, ay, bx, by]) => {
+              const dx = bx - ax,
+                dy = by - ay;
+              const t = Math.max(
+                0,
+                Math.min(
+                  1,
+                  ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy),
+                ),
+              );
+              return Math.hypot(px - ax - t * dx, py - ay - t * dy) <= 1.75;
+            })
+          )
+            hits++;
+        }
+      const i = (y * size + x) * 4;
+      const color = blend(BG, [185, 245, 103, 255], hits / 16);
+      for (let c = 0; c < 4; c++) pixels[i + c] = color[c];
+    }
   return pixels;
 }
 

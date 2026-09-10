@@ -1,61 +1,94 @@
-# 城巴 56／56A 實時到站
+# 就到站 · 我的巴士行程
 
-查 **NOVO LAND（欣寶路）** 與 **上水站** 之間城巴 56、56A 的實時到站，以及預計抵達終點的時間。介面為繁體中文。
+繁體中文、免框架的巴士到站網站，保留黑色靈動島式到站卡。支援：
 
-手機可直接打開：
-
-- 去上水：https://qioqiao.github.io/grok4.6_56_demo/
-- 回 NOVO LAND：https://qioqiao.github.io/grok4.6_56_demo/inbound.html
-
-## 兩個頁面
-
-| 頁面 | 上車 | 落車 |
-| --- | --- | --- |
-| `index.html`（去上水） | NOVO LAND 欣寶路 | 上水站 D2 |
-| `inbound.html`（回程） | 上水站 D1 | NOVO LAND 欣寶路 |
-
-每班會顯示：
-
-- 這班還有多久到上車點
-- 預計幾點抵達終點
-- 資料是實時、原定班次，還是班表推算
-
-56 用藍色、56A 用橙色。快到站時只改倒計時文字顏色，卡片底色不變。
-
-## 路線說明
-
-兩線互補，平日一起覆蓋屯門北 ↔ 北區：
-
-- **56A**：平日繁忙時間，經皇后山，也停上水站；週末及公眾假期停開
-- **56**：平日非繁忙時段，以及週末全日，往天平邨
-
-有城巴開放數據時以實時 ETA 為準；沒有覆蓋的時段才用官方班表推算。
+- 城巴 56／56A：NOVO LAND 欣寶路 ↔ 上水站，保留原網站行程。
+- **74K／75F 已合併為一個教大行程入口**，兩線同時查詢，按上車 ETA 排序；各自顯示實際上車月台與車程估算。
+- 九巴 74K：大埔墟站 ↔ 香港教育大學；依香港時間自動選擇站序，亦可手動選擇中午前／中午後版本。
+- 九巴 75F：大埔墟站 ↔ 香港教育大學；一般特快及經大埔工業邨特別班次。
+- 74K／75F 可選沿線上落車站，落車站必須位於上車站之後。
 
 ## 本機執行
 
-需要 [Node.js](https://nodejs.org/)。在專案目錄：
+需要 Node.js 22 或以上，不需要安裝執行依賴：
 
 ```powershell
 npm start
 ```
 
-或雙擊 `start.cmd`。瀏覽器打開 http://127.0.0.1:8756/
+打開 http://127.0.0.1:8756/ 。也可以雙擊 `start.cmd`。
 
-本機伺服器會代理城巴 API；GitHub Pages 上則直接請求開放數據。
+- `index.html?route=74K&direction=out`：往教育大學
+- `index.html?route=74K&direction=in`：回大埔墟
+- `index.html?route=75F&direction=out`：相容舊連結，開啟合併的 74K／75F 行程
+- `inbound.html`：相容原網站的回 NOVO LAND 連結
 
-## 資料來源
+可用 `PORT` 環境變數改變預覽埠。這次檢閱使用 8856。
 
-- 實時到站：[data.gov.hk 城巴 ETA](https://rt.data.gov.hk/)
-- 班表推算：運輸署 2024-07-28 服務調整，以及公開班距資料
+## 更新與準確性
 
-約每 30 秒自動更新。
+- 前景每 30 秒查詢 ETA；離開分頁暫停查詢，回到分頁及恢復連線即時刷新。
+- 明確區分「實時預報」與巴士公司提供的「原定班次」。沒有 ETA 時不從舊班表捏造班次。
+- 按資料來源的時間判斷新舊，而非只記錄下載時間。超過 2 分鐘、斷線或更新失敗，會標示舊資料並停止實時倒數；超過 5 分鐘隱藏。
+- 請求有超時，路線切換會取消舊請求；較早的回應不能覆蓋新行程。部分來源失敗不會抹除其他有效來源。
+- 香港時間固定為 Asia/Hong_Kong，不受裝置所在時區影響。
+- 車站資料來自九巴 API，隨頁面啟動更新，長時間開啟時每天重新核對；載入失敗時使用 2026-09-10 核對的隨附站序並提示。
 
-## 網站圖示
+### 74K 行車版本
 
-桌面 Chrome 分頁用 `favicon.svg`。iOS 加到主畫面必須用 PNG（不吃 SVG），檔案是：
+九巴 `service_type=1` 先經教育大學，`service_type=2` 先經三門仔。版本以大埔墟開出時間區分，中午 12:00 起用第二版本；凌晨 00:10 的尾班仍屬第二版本。03:00 為介面從凌晨尾班站序切回早上站序的切換點，不代表新增班次。
 
-- `apple-touch-icon.png`（180×180，給 iPhone）
-- `icon-192.png` / `icon-512.png`（給 Android / 桌面 PWA）
+九巴會將共站的同一 ETA 同時放進不同 service_type 的回應，不能只按 service_type 認定是兩輛巴士。此版本：
 
-改圖後執行 `node scripts/write-icons.mjs` 可依 `favicon.svg` 的配色重繪 PNG。手機若已經加過主畫面，要刪掉舊捷徑再加一次才會刷新圖示。iOS 上用 **Safari** 分享 → 加入主畫面最穩；Chrome iOS 仍走系統 WebKit，對 SVG / PWA manifest 支援不完整。
+1. 按 route、direction、service_type、stop sequence 篩選資料。
+2. 大埔墟上車的 74K 按該班開出 ETA 辨別中午前後版本。
+3. 其他共站相同 ETA 合併為一班；無法確認行車版本時明確標示，抵達時間顯示估算範圍。
+4. 自動模式同時查看兩個版本，保留在中午交界仍在途中的班次。手動選擇行車版本不等於查閱未來時刻表。
+
+### 抵達時間是估算
+
+抵達時間 = 上車 ETA + 車程估算。預設值只是可調整的初始估算，不是官方車程或巴士追蹤資料：
+
+| 行程                     |                          初始估算 |
+| ------------------------ | --------------------------------: |
+| 56／56A                  | 35 分鐘，平日早晚繁忙時段 42 分鐘 |
+| 74K 往教大，中午前／後   |                       28／48 分鐘 |
+| 74K 回大埔墟，中午前／後 |                       48／28 分鐘 |
+| 75F 一般／經工業邨       |                       20／28 分鐘 |
+
+其他站段按站數作粗略估算，使用者可展開「車程估算」自行調整。沒有使用不同站的 ETA 猜配同一輛車。落車站到站資料獨立顯示，不保證對應上車班次。
+
+75F 剛投入服務，實際可取得的班次以九巴 API 為準。特定停課日、假日服務變更請查看官方公告。
+
+## GitHub Pages
+
+網站保持純靜態，所有資源使用相對路徑，適用於 GitHub Pages 的專案子路徑。公開網站直接連接官方 API；本機由 `server.mjs` 代理。代理限定指定路線及官方網域，伺服器僅公開網站資源，不會提供 `.git` 或測試檔案。
+
+GitHub 倉庫：https://github.com/qioqiao/novoland-56-etanovo-sheungshui-bus
+
+## 檔案與驗證
+
+- `app.js`：互動、定時刷新、資料狀態和畫面。
+- `model.js`：時間、ETA 篩選、版本去重、車程估算。
+- `routes.json`：官方車站快照。
+- `server.mjs`：本機靜態服務及限定範圍的代理。
+- `scripts/update-routes.mjs`：從官方更新隨附車站資料。
+
+```powershell
+npm test
+npm run update-routes
+```
+
+已驗證 12:00 與午夜邊界、循環站序、版本去重、方向篩選、過期資料、預設車程及代理限制。另以實際 app 程式及官方 API 在 Node DOM 測試環境驗證路線切換、手動刷新、斷線及恢復；此項不等於瀏覽器的視覺測試。
+
+## 官方來源
+
+- [九巴開放數據](https://data.gov.hk/tc-data/dataset/hk-td-tis_21-etakmb)：ETA 約每分鐘更新，路線資料每天更新。
+- [九巴 API 規格](https://data.etabus.gov.hk/datagovhk/kmb_eta_api_specification.pdf)
+- [74K 官方路線](https://search.kmb.hk/KMBWebSite/?action=routesearch&route=74K&lang=zh-hk)
+- [75F 官方開辦公告](https://e.kmb.hk/news_detail.html?id=1412&year=2026)
+- [教育大學交通資訊](https://www.eduhk.hk/eo/transportation)
+- [城巴開放數據](https://rt.data.gov.hk/)
+
+分頁及主畫面圖示已統一為黑底綠色箭嘴，資源網址帶版本號以更新快取。`node scripts/write-icons.mjs` 可重建 PNG 圖示。
 
