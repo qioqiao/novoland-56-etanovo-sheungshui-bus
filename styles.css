@@ -1198,3 +1198,164 @@ footer a {
 #ride75Wrap {
   margin-top: 12px;
 }
+
+/* A shared motion rhythm: quick feedback, gentle arrival, no looping decoration. */
+:root {
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-duration: 360ms;
+}
+.brand-icon {
+  font-size: 0;
+}
+.brand-icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 7px;
+}
+.page-heading {
+  margin: 23px 0 20px;
+}
+h1.section-label {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+  color: var(--muted);
+}
+.route-tabs,
+.direction-control {
+  position: relative;
+  isolation: isolate;
+  --active-index: 0;
+  --segment-inset: 6px;
+  --segment-gap: 8px;
+}
+.direction-control {
+  --segment-inset: 4px;
+  --segment-gap: 4px;
+}
+.route-tabs::before,
+.direction-control::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: var(--segment-inset) auto var(--segment-inset) var(--segment-inset);
+  width: calc(
+    (100% - var(--segment-inset) - var(--segment-inset) - var(--segment-gap)) /
+      2
+  );
+  background: var(--paper);
+  border-radius: 14px;
+  box-shadow: 0 2px 7px #1b26310d;
+  transform: translateX(
+    calc(var(--active-index) * (100% + var(--segment-gap)))
+  );
+  transition: transform var(--motion-duration) var(--motion-ease);
+}
+.direction-control::before {
+  background: #222628;
+  border-radius: 9px;
+  box-shadow: none;
+}
+.route-tabs button[aria-pressed="true"],
+.route-tabs button:hover,
+.direction-control button[aria-pressed="true"] {
+  background: transparent;
+  box-shadow: none;
+}
+.route-tabs button,
+.direction-control button {
+  position: relative;
+  transition:
+    color 220ms ease,
+    transform 180ms var(--motion-ease);
+}
+.refresh,
+.estimate-input button {
+  transition:
+    transform 180ms var(--motion-ease),
+    background 180ms ease;
+}
+.route-tabs button:active,
+.direction-control button:active,
+.refresh:active,
+.estimate-input button:active {
+  transform: scale(0.97);
+}
+select {
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+select:focus {
+  border-color: #7ba758;
+}
+.live-pill {
+  transition:
+    background 250ms ease,
+    color 250ms ease,
+    border-color 250ms ease;
+}
+.topbar,
+.page-heading,
+.route-tabs,
+.workspace {
+  animation: surface-in 520ms var(--motion-ease) both;
+}
+.page-heading {
+  animation-delay: 45ms;
+}
+.route-tabs {
+  animation-delay: 80ms;
+}
+.workspace {
+  animation-delay: 120ms;
+}
+details[open] > :not(summary) {
+  animation: disclosure-in 240ms var(--motion-ease);
+}
+@keyframes surface-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes disclosure-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 680px) {
+  .route-tabs {
+    --segment-inset: 4px;
+    --segment-gap: 3px;
+  }
+  .route-tabs::before {
+    border-radius: 11px;
+  }
+  .page-heading {
+    margin: 17px 0;
+  }
+  .brand-icon svg {
+    padding: 6px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -28,6 +28,42 @@ const esc = (s) =>
 const text = (id, value) => {
   if ($(id).textContent !== value) $(id).textContent = value;
 };
+// Keep unchanged ETA markup in place; animate only meaningful state changes.
+const motionPreference = window.matchMedia?.(
+  "(prefers-reduced-motion: reduce)",
+);
+const runningAnimations = new WeakMap();
+function animateIn(element, distance = 8, duration = 320) {
+  if (!element?.animate || motionPreference?.matches) return;
+  runningAnimations.get(element)?.cancel();
+  const animation = element.animate(
+    [
+      { opacity: 0.65, transform: `translateY(${distance}px)` },
+      { opacity: 1, transform: "translateY(0)" },
+    ],
+    { duration, easing: "cubic-bezier(.22,1,.36,1)" },
+  );
+  runningAnimations.set(element, animation);
+}
+const renderedMarkup = new Map();
+function setMarkup(id, html) {
+  if (renderedMarkup.get(id) === html) return;
+  const element = $(id);
+  const previousNumber =
+    id === "hero" ? element.querySelector(".wait strong")?.textContent : null;
+  const previousRoute =
+    id === "hero" ? element.querySelector(".route-badge")?.textContent : null;
+  element.innerHTML = html;
+  renderedMarkup.set(id, html);
+  if (id === "hero") {
+    const number = element.querySelector(".wait strong");
+    const route = element.querySelector(".route-badge")?.textContent;
+    if (route !== previousRoute) animateIn(element, 7, 360);
+    else if (number && number.textContent !== previousNumber)
+      animateIn(number, 5, 240);
+  }
+}
+
 const CTB = {
   out: {
     board: { id: "003767", name: "NOVO LAND · 欣寶路", seq: 1 },
@@ -182,6 +218,12 @@ function setupJourney({ reset = false } = {}) {
         String(b.dataset.direction === state.direction),
       ),
     );
+  document
+    .querySelector(".route-tabs")
+    .style.setProperty("--active-index", state.route === "56" ? "0" : "1");
+  document
+    .querySelector(".direction-control")
+    .style.setProperty("--active-index", state.direction === "out" ? "0" : "1");
   text("operator", state.route === "56" ? "城巴" : "九巴");
   text("outLabel", state.route === "56" ? "去上水" : "去教育大學");
   text("inLabel", state.route === "56" ? "回 NOVO LAND" : "回大埔墟站");
@@ -591,17 +633,22 @@ function render() {
         : state.route === "75F"
           ? "75F 只於指定繁忙時段服務，可切換 74K 查看其他班次。"
           : "巴士公司暫未提供這個行程的班次，不一定代表全日停駛。";
-    $("hero").innerHTML =
-      `<span class="island-eyebrow">${esc(state.route === "56" ? "56 / 56A" : "74K / 75F")} · ${esc(cleanName(pair.board.name))}</span><h3>${title}</h3><p>${detail}</p>${loading ? '<div class="loading-track" aria-hidden="true"></div>' : ""}`;
+    setMarkup(
+      "hero",
+      `<span class="island-eyebrow">${esc(state.route === "56" ? "56 / 56A" : "74K / 75F")} · ${esc(cleanName(pair.board.name))}</span><h3>${title}</h3><p>${detail}</p>${loading ? '<div class="loading-track" aria-hidden="true"></div>' : ""}`,
+    );
   } else {
     const mins = waitMinutes(next.eta, now),
       src = sourceLabel(next, now),
       old = src.className === "stale";
     $("hero").className = "island";
-    $("hero").innerHTML =
-      `<div class="island-top"><span class="island-eyebrow">下一班 · ${esc(cleanName(pair.board.name).replace(/ · .*/, ""))}</span><span class="source-pill ${src.className}">${src.label}</span></div><div class="island-main"><div>${badge(next)}<p class="route-meta">${esc(next.variant || variantLabel(next.route, next.service))}</p>${next.boardStop ? `<p class="platform-note">上車：${esc(next.boardStop)}</p>` : ""}</div><div class="wait ${mins <= 2 ? "soon" : ""} ${old || mins === 0 ? "words" : ""}"><strong>${old ? "待更新" : mins === 0 ? "即將" : mins}</strong><span>${old ? "" : mins === 0 ? "到站" : "分鐘"}</span></div></div><div class="island-bottom"><div class="time-pair"><div class="time-block"><span>${old ? "上次預報" : "預計上車"}</span><strong>${hkTime(next.eta)}</strong></div><span class="time-arrow" aria-hidden="true">→</span><div class="time-block"><span>估算抵達</span><strong>${old ? "—" : arrivalTime(next)}</strong></div></div><span class="ride-tag">車程約 ${rideRange(next)} 分鐘</span></div>`;
+    setMarkup(
+      "hero",
+      `<div class="island-top"><span class="island-eyebrow">下一班 · ${esc(cleanName(pair.board.name).replace(/ · .*/, ""))}</span><span class="source-pill ${src.className}">${src.label}</span></div><div class="island-main"><div>${badge(next)}<p class="route-meta">${esc(next.variant || variantLabel(next.route, next.service))}</p>${next.boardStop ? `<p class="platform-note">上車：${esc(next.boardStop)}</p>` : ""}</div><div class="wait ${mins <= 2 ? "soon" : ""} ${old || mins === 0 ? "words" : ""}"><strong>${old ? "待更新" : mins === 0 ? "即將" : mins}</strong><span>${old ? "" : mins === 0 ? "到站" : "分鐘"}</span></div></div><div class="island-bottom"><div class="time-pair"><div class="time-block"><span>${old ? "上次預報" : "預計上車"}</span><strong>${hkTime(next.eta)}</strong></div><span class="time-arrow" aria-hidden="true">→</span><div class="time-block"><span>估算抵達</span><strong>${old ? "—" : arrivalTime(next)}</strong></div></div><span class="ride-tag">車程約 ${rideRange(next)} 分鐘</span></div>`,
+    );
   }
-  $("trips").innerHTML =
+  setMarkup(
+    "trips",
     board
       .slice(1)
       .map((r) => {
@@ -609,14 +656,17 @@ function render() {
         return `<article class="trip-row" aria-label="${esc(r.route)} ${hkTime(r.eta)} ${src.label}">${badge(r)}<div class="trip-info"><strong>${hkTime(r.eta)}<span aria-hidden="true">→</span>${src.className === "stale" ? "—" : arrivalTime(r)}</strong><p>${src.label}${r.route === "74K" || r.route === "75F" ? " · " + esc(r.variant || variantLabel(r.route, r.service)) : ""}</p>${r.boardStop ? `<p class="platform-note">上車：${esc(r.boardStop)}</p>` : ""}</div><div class="trip-wait">${src.className === "stale" ? "待更新" : `<strong>${waitMinutes(r.eta, now)}</strong>分鐘`}</div></article>`;
       })
       .join("") ||
-    `<p class="empty-list">${loading ? "正在尋找班次…" : next ? "暫未有後續班次，稍後自動更新" : "有新的到站預報時，班次會在這裡顯示。"}</p>`;
-  $("arrivals").innerHTML =
+      `<p class="empty-list">${loading ? "正在尋找班次…" : next ? "暫未有後續班次，稍後自動更新" : "有新的到站預報時，班次會在這裡顯示。"}</p>`,
+  );
+  setMarkup(
+    "arrivals",
     arrivals
       .map((r) => {
         const src = sourceLabel(r, now);
         return `<div class="arrival-item">${badge(r)}<span>${hkTime(r.eta)} <small>· ${src.label}${r.alightStop ? " · " + esc(r.alightStop) : ""}</small></span><strong>${src.className === "stale" ? "待更新" : waitMinutes(r.eta, now) + " 分鐘"}</strong></div>`;
       })
-      .join("") || '<p class="empty-list">落車站暫未有到站預報</p>';
+      .join("") || '<p class="empty-list">落車站暫未有到站預報</p>',
+  );
   const sources = feeds
     .filter((f) => f?.json)
     .map((f) => f.sourceAt)
@@ -650,6 +700,7 @@ function changeJourney(reset = false) {
   state.loaded = false;
   state.lastSuccess = 0;
   refresh({ replace: true });
+  animateIn(document.querySelector(".results-panel"), 10, 380);
 }
 
 document.querySelectorAll("[data-route]").forEach((b) =>
@@ -833,8 +884,10 @@ async function boot() {
     updateMetadata();
   } catch {
     $("hero").className = "island empty-island";
-    $("hero").innerHTML =
-      "<h3>未能載入行程</h3><p>請確認網絡連線，再按「更新」重試。</p>";
+    setMarkup(
+      "hero",
+      "<h3>未能載入行程</h3><p>請確認網絡連線，再按「更新」重試。</p>",
+    );
     text("connection", "連線失敗");
     $("connection").classList.add("warning");
     $("refresh").disabled = false;

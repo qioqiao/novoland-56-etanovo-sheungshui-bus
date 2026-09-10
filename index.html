@@ -17,14 +17,23 @@
     <link rel="icon" href="./favicon.svg?v=2" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=2" />
     <link rel="manifest" href="./manifest.json?v=2" />
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./styles.css?v=3" />
   </head>
   <body>
     <a class="skip" href="#main">跳至到站資訊</a>
     <div class="shell">
       <header class="topbar">
         <a class="brand" href="./index.html"
-          ><span class="brand-icon" aria-hidden="true">↗</span
+          ><span class="brand-icon" aria-hidden="true"
+            ><svg viewBox="0 0 32 32" focusable="false">
+              <path
+                d="M9 23 23 9M10 9h13v13"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              /></svg></span
           ><span>就到站<small>我的巴士行程</small></span></a
         >
         <div class="hk-clock">
@@ -34,8 +43,7 @@
       <main id="main">
         <div class="page-heading">
           <div>
-            <p class="eyebrow">常用路線 · 即時到站</p>
-            <h1>下一班，幾時到？</h1>
+            <h1 class="section-label">常用路線 · 即時到站</h1>
           </div>
           <span class="live-pill" id="connection">正在連線</span>
         </div>
@@ -205,6 +213,6 @@
       </main>
     </div>
     <noscript>請啟用 JavaScript 以讀取實時到站時間。</noscript>
-    <script type="module" src="./app.js"></script>
+    <script type="module" src="./app.js?v=3"></script>
   </body>
 </html>
