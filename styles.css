@@ -1421,7 +1421,7 @@ details[open] > :not(summary) {
 /* Keep iOS's native root scroll view empty at its blurred top edge.
    Only the inset application area scrolls; content is clipped below that edge. */
 html.ios-standalone {
-  --ios-top-guard: max(112px, calc(env(safe-area-inset-top, 0px) + 48px));
+  --ios-top-guard: 40px;
   height: 100%;
   overflow: hidden;
   background: var(--bg);
@@ -1476,6 +1476,6 @@ html.ios-standalone .brand > span:last-child {
 }
 @media (orientation: landscape) {
   html.ios-standalone {
-    --ios-top-guard: max(64px, calc(env(safe-area-inset-top, 0px) + 32px));
+    --ios-top-guard: 16px;
   }
 }
