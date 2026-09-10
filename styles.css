@@ -1202,7 +1202,7 @@ footer a {
 /* A shared motion rhythm: quick feedback, gentle arrival, no looping decoration. */
 :root {
   --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --motion-duration: 360ms;
+  --motion-duration: 560ms;
 }
 .brand-icon {
   font-size: 0;
@@ -1251,7 +1251,9 @@ h1.section-label {
   transform: translateX(
     calc(var(--active-index) * (100% + var(--segment-gap)))
   );
-  transition: transform var(--motion-duration) var(--motion-ease);
+  transition:
+    transform var(--motion-duration) cubic-bezier(0.22, 1.18, 0.36, 1),
+    box-shadow 280ms ease;
 }
 .direction-control::before {
   background: #222628;
@@ -1301,7 +1303,7 @@ select:focus {
 .page-heading,
 .route-tabs,
 .workspace {
-  animation: surface-in 520ms var(--motion-ease) both;
+  animation: surface-in 620ms var(--motion-ease) backwards;
 }
 .page-heading {
   animation-delay: 45ms;
@@ -1417,4 +1419,234 @@ details[open] > :not(summary) {
   .more-options-content .variant-wrap {
     margin: 0 0 12px;
   }
+}
+
+/* Short, interruptible dissolves keep the black arrival island readable. */
+.motion-text {
+  display: inline-block;
+}
+.motion-ghost {
+  position: absolute;
+  z-index: 50;
+  pointer-events: none;
+  user-select: none;
+  margin: 0;
+  padding: 0;
+  transform-origin: center;
+}
+.wait strong,
+.time-block strong {
+  display: inline-block;
+}
+.route-tabs::before {
+  background: linear-gradient(145deg, #ffffff, #ffffffde);
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 3px 12px #18232c0c;
+}
+.direction-control::before {
+  background: linear-gradient(150deg, #303638, #202426);
+  box-shadow:
+    inset 0 1px 0 #ffffff18,
+    0 2px 6px #14201812;
+}
+.route-tabs button,
+.direction-control button {
+  -webkit-tap-highlight-color: transparent;
+}
+.trip-row {
+  transition:
+    box-shadow 300ms ease,
+    transform 300ms var(--motion-ease);
+}
+.more-options > summary,
+.arrival-details > summary,
+.estimate-settings > summary,
+.stop-details > summary,
+.service-details > summary {
+  transition: color 200ms ease;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .trip-row:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px #19232e09;
+  }
+  .route-tabs button:hover {
+    transform: translateY(-1px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .motion-ghost {
+    display: none;
+  }
+}
+
+/* Tactile navigation: a single floating lens stretches between real buttons. */
+.has-lens::before {
+  display: none;
+}
+.segment-lens {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  top: var(--segment-inset);
+  bottom: var(--segment-inset);
+  border-radius: 14px;
+  transform-origin: center;
+  background: linear-gradient(155deg, #fff 20%, #ffffffdb 72%, #e9eef3ed);
+  box-shadow:
+    inset 0 1px 0 #fff,
+    inset 0 -1px 1px #ffffffaa,
+    0 3px 10px #18232c12;
+}
+.direction-control .segment-lens {
+  border-radius: 9px;
+  background: linear-gradient(155deg, #3c4346 0%, #25292c 50%, #1e2325 100%);
+  box-shadow:
+    inset 0 1px 0 #ffffff26,
+    inset 0 -1px 0 #00000020,
+    0 3px 7px #18232c19;
+}
+.segment-lens::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  border: 1px solid #ffffff24;
+  pointer-events: none;
+}
+.route-tabs button,
+.direction-control button,
+.refresh,
+.estimate-input button {
+  position: relative;
+  isolation: isolate;
+}
+.route-tabs button::after,
+.direction-control button::after,
+.refresh::after,
+.estimate-input button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at var(--touch-x, 50%) var(--touch-y, 50%),
+    #ffffff60,
+    #ffffff00 72%
+  );
+  opacity: 0;
+  transition: opacity 520ms ease;
+}
+.route-tabs button:active::after,
+.direction-control button:active::after,
+.refresh:active::after,
+.estimate-input button:active::after {
+  opacity: 1;
+  transition-duration: 90ms;
+}
+.island {
+  position: relative;
+  isolation: isolate;
+}
+.motion-sheen {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  top: -25%;
+  bottom: -25%;
+  left: 0;
+  width: 80%;
+  background: linear-gradient(
+    100deg,
+    transparent 5%,
+    #ffffff02 30%,
+    #ffffff18 48%,
+    #e7ffd91c 52%,
+    #ffffff03 72%,
+    transparent 90%
+  );
+}
+.more-options > summary,
+.estimate-settings > summary,
+.stop-details > summary,
+.service-details > summary {
+  list-style: none;
+}
+.more-options:not([open]) > summary {
+  list-style: none;
+}
+summary::-webkit-details-marker {
+  display: none;
+}
+.more-options > summary::after,
+.estimate-settings > summary::after,
+.stop-details > summary::after,
+.service-details > summary::after {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin: 0 3px 3px 12px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 420ms var(--motion-ease);
+  opacity: 0.7;
+}
+details[open] > summary::after,
+details[data-expanded="true"] > summary::after {
+  transform: rotate(45deg);
+}
+details[data-expanded="false"] > summary::after {
+  transform: rotate(-45deg);
+}
+details[open] > :not(summary) {
+  animation: disclosure-materialize 440ms var(--motion-ease);
+  transform-origin: top center;
+}
+@keyframes disclosure-materialize {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateY(-8px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+  }
+}
+@media (max-width: 680px) {
+  .route-tabs .segment-lens {
+    border-radius: 11px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .motion-sheen {
+    display: none;
+  }
+}
+
+/* A quiet placeholder bridges fast requests without flashing loading copy. */
+.pending-arrival {
+  width: 100%;
+  min-height: 84px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+}
+.pending-arrival > span {
+  display: block;
+  height: 12px;
+  width: 78%;
+  border-radius: 6px;
+  background: #ffffff09;
+}
+.pending-arrival > span:first-child {
+  height: 22px;
+  width: 44%;
+  background: #ffffff0d;
 }
