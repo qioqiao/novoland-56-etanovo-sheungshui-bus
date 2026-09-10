@@ -1359,3 +1359,62 @@ details[open] > :not(summary) {
     scroll-behavior: auto !important;
   }
 }
+
+/* On phones, prioritize the clock and the next bus over the brand heading. */
+@media (max-width: 680px) {
+  .shell {
+    padding-top: calc(12px + env(safe-area-inset-top));
+  }
+  .topbar {
+    padding-bottom: 12px;
+  }
+  .brand > span:last-child {
+    display: none;
+  }
+  .brand-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 11px;
+  }
+  .brand-icon svg {
+    padding: 4px;
+  }
+  .hk-clock {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .hk-clock > span {
+    font-size: 0.75rem;
+  }
+  .hk-clock time {
+    font-size: 1rem;
+  }
+  .page-heading {
+    margin: 11px 0;
+  }
+  .route-tabs {
+    margin-bottom: 14px;
+  }
+  .workspace {
+    gap: 16px;
+  }
+  .journey-panel {
+    padding: 14px 16px;
+  }
+  .panel-title {
+    display: none;
+  }
+  .direction-control {
+    margin-bottom: 10px;
+  }
+  .more-options > summary {
+    padding-top: 9px;
+  }
+  .more-options {
+    margin-top: 10px;
+  }
+  .more-options-content .variant-wrap {
+    margin: 0 0 12px;
+  }
+}

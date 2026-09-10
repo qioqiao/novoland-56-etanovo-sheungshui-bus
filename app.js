@@ -101,6 +101,22 @@ let baseVariant = null;
 let selectionReady = false;
 if (window.matchMedia?.("(max-width: 680px)").matches)
   document.getElementById("moreOptions").open = false;
+// Keep primary mobile controls compact; retain all settings in the disclosure.
+const mobileLayout = window.matchMedia?.("(max-width: 680px)");
+if (mobileLayout) {
+  const variant = $("variantWrap");
+  const desktopPosition = document.createComment("desktop variant settings");
+  variant.before(desktopPosition);
+  const adaptLayout = () => {
+    if (mobileLayout.matches)
+      document.querySelector(".more-options-content").prepend(variant);
+    else desktopPosition.after(variant);
+    $("moreOptions").open = !mobileLayout.matches;
+  };
+  adaptLayout();
+  mobileLayout.addEventListener?.("change", adaptLayout);
+}
+
 const safeRead = () => {
   try {
     return JSON.parse(localStorage.getItem("bus-journey-v2") || "{}");
