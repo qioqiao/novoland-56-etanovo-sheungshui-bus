@@ -105,12 +105,23 @@
   position: relative;
   isolation: isolate;
 }
-.motion-sheen {
+.island > .motion-sheen {
   position: absolute;
   z-index: 2;
   pointer-events: none;
-  inset: 0;
-  background: #ffffff05;
+  top: -25%;
+  bottom: -25%;
+  left: 0;
+  width: 80%;
+  background: linear-gradient(
+    100deg,
+    transparent 5%,
+    #ffffff02 30%,
+    #ffffff18 48%,
+    #e7ffd91c 52%,
+    #ffffff03 72%,
+    transparent 90%
+  );
 }
 .more-options > summary,
 .estimate-settings > summary,

@@ -258,9 +258,13 @@ function lightSweep(element) {
   playMotion(
     sheen,
     [
-      { opacity: 0, offset: 0 },
-      { opacity: 1, offset: 0.35 },
-      { opacity: 0, offset: 1 },
+      { transform: "translateX(-120%) skewX(-18deg)", opacity: 0, offset: 0 },
+      {
+        transform: "translateX(-30%) skewX(-18deg)",
+        opacity: 0.7,
+        offset: 0.35,
+      },
+      { transform: "translateX(160%) skewX(-18deg)", opacity: 0, offset: 1 },
     ],
     { duration: 850, easing: "cubic-bezier(.2,.65,.3,1)" },
     () => sheen.remove(),

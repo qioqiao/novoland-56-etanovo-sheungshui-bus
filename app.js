@@ -8,7 +8,7 @@ import {
   setJourneyDrift,
   captureHeroHeight,
   animateJourneyPath,
-} from "./motion.js?v=flat4";
+} from "./motion.js?v=sheen5";
 import {
   REFRESH_MS,
   EXPIRE_MS,
