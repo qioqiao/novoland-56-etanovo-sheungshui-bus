@@ -56,6 +56,23 @@ const image = (transform) => {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${tileExtent} ${tileExtent}"><path fill="black" transform="${transform}" d="${path}"/></svg>`;
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 };
+// The square logo uses one complete contour, so it has no tiled seams.
+// Keep the same curvature construction and a finite straight section per side.
+const logoSize = 32;
+const logoRadius = 9;
+const logoExtent = logoRadius * (1 + smoothing);
+const logoScale = logoExtent / extent;
+const local = point => point.map(value => value * logoScale);
+const corners = [
+  ([x, y]) => [logoSize - logoExtent + x, y],
+  ([x, y]) => [logoSize - y, logoSize - logoExtent + x],
+  ([x, y]) => [logoExtent - x, logoSize - y],
+  ([x, y]) => [y, logoExtent - x],
+];
+const segment = transform => `L${xy(transform([0, 0]))} C${entry.slice(1).map(point => xy(transform(local(point)))).join(' ')} A${logoRadius} ${logoRadius} 0 0 1 ${xy(transform(local(exit[0])))} C${exit.slice(1).map(point => xy(transform(local(point)))).join(' ')}`;
+const logoPath = `M${logoExtent} 0 ${corners.map(segment).join(' ')} Z`;
+const logoMask = `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="${logoPath}" fill="black"/></svg>`)}")`;
+assert.ok(logoSize - 2 * logoExtent > 0);
 const begin = "/* BEGIN GENERATED ISLAND CORNERS */";
 const end = "/* END GENERATED ISLAND CORNERS */";
 const css = `${begin}
@@ -68,6 +85,11 @@ const css = `${begin}
  * Both prefixed and standard masks use the same geometry on iOS/WebKit.
  */
 @supports (mask-image: linear-gradient(#000, #000)) or (-webkit-mask-image: linear-gradient(#000, #000)) {
+  .brand-icon {
+    border-radius: 0;
+    -webkit-mask: ${logoMask} center / 100% 100% no-repeat;
+    mask: ${logoMask} center / 100% 100% no-repeat;
+  }
   .island-shell {
     filter: drop-shadow(0 12px 14px #12192221);
   }
@@ -96,6 +118,7 @@ const updated = start < 0
   ? `${original.trimEnd()}\n\n${css}\n`
   : original.slice(0, start) + css + original.slice(finish + end.length);
 await writeFile(file, updated);
+await writeFile(new URL('../favicon.svg', import.meta.url), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="${logoPath}" fill="#141719"/><path d="M9 23 23 9M10 9h13v13" fill="none" stroke="#c5f27a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>\n`);
 
 // Check actual supported layout extremes: resizing must leave four finite
 // straight sections, and the same square geometry at every corner.

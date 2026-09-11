@@ -10,6 +10,8 @@ const publicFiles = new Set([
   "app.js",
   "motion.js",
   "motion.css",
+  "launch.js",
+  "launch.css",
   "model.js",
   "styles.css",
   "routes.json",

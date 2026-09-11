@@ -8,9 +8,10 @@ const runningAnimations = new WeakMap();
 const activeMotion = new Set();
 const motionOwners = new WeakMap();
 const motionEase = "cubic-bezier(.22,1,.36,1)";
+const opening = () => document.documentElement.hasAttribute('data-launch');
 function playMotion(element, frames, options = {}, cleanup = () => {}) {
   runningAnimations.get(element)?.cancel();
-  if (!element?.animate || motionPreference?.matches || document.hidden) {
+  if (!element?.animate || motionPreference?.matches || document.hidden || opening()) {
     cleanup();
     return;
   }
@@ -69,6 +70,7 @@ function captureText(element) {
     !element?.animate ||
     !element.getBoundingClientRect ||
     motionPreference?.matches ||
+    opening() ||
     document.hidden
   )
     return null;
@@ -246,7 +248,7 @@ window.addEventListener("resize", () => {
   }
 });
 function lightSweep(element) {
-  if (!element?.animate || motionPreference?.matches || document.hidden) return;
+  if (!element?.animate || motionPreference?.matches || document.hidden || opening()) return;
   element.querySelectorAll(".motion-sheen").forEach((node) => {
     runningAnimations.get(node)?.cancel();
     node.remove();
