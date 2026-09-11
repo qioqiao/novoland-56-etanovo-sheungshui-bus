@@ -8,6 +8,8 @@ const publicFiles = new Set([
   "index.html",
   "inbound.html",
   "app.js",
+  "motion.js",
+  "motion.css",
   "model.js",
   "styles.css",
   "routes.json",

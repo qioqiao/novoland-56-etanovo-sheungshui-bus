@@ -23,7 +23,7 @@ npm start
 - `index.html?route=75F&direction=out`：相容舊連結，開啟合併的 74K／75F 行程
 - `inbound.html`：相容原網站的回 NOVO LAND 連結
 
-可用 `PORT` 環境變數改變預覽埠。這次檢閱使用 8856。
+可用 `PORT` 環境變數改變預覽埠。新版檢閱使用 8857；原版對照使用 8856。
 
 ## 更新與準確性
 
@@ -68,7 +68,9 @@ GitHub 倉庫：https://github.com/qioqiao/novoland-56-etanovo-sheungshui-bus
 
 ## 檔案與驗證
 
-- `app.js`：互動、定時刷新、資料狀態和畫面。
+- `app.js`：行程選擇、定時刷新、資料狀態和畫面協調。
+- `motion.js`：可中斷動畫、膠囊滑塊、文字切換、載入過渡及摺疊互動。
+- `styles.css`：新版版面與響應式樣式；`motion.css`：動畫及互動效果。
 - `model.js`：時間、ETA 篩選、版本去重、車程估算。
 - `routes.json`：官方車站快照。
 - `server.mjs`：本機靜態服務及限定範圍的代理。
@@ -92,3 +94,21 @@ npm run update-routes
 
 分頁及主畫面圖示已統一為黑底綠色箭嘴，資源網址帶版本號以更新快取。`node scripts/write-icons.mjs` 可重建 PNG 圖示。
 
+
+## 2026-09-11 介面重構
+
+- 淺色介面、黑色到站卡片；手機優先顯示時間與到站資訊。
+- 桌面以到站資訊為主、行程設定置右；手機改為緊湊單欄。
+- 行車版本、自訂車程、沿途車站、官方資訊集中於同一個進階設定區。
+- 動畫與版面樣式獨立；沿用原本經驗證的 ETA 模型和資料更新行為。
+- 重構前的原始碼、Git 歷史及還原工具已保留於本機完整備份，可按需要還原。
+
+### 黑色卡片的連續曲率圓角
+
+參考 [Figma 的曲率分析](https://www.figma.com/blog/desperately-seeking-squircles/)及其 [iOS 60% 平滑設定](https://help.figma.com/hc/en-us/articles/360050986854-Adjust-corner-radius-and-smoothing)，以兩段三次貝茲曲線銜接中央圓弧，並解出曲率連續的控制點。這是配合卡片尺寸的 iPhone 風格近似，不是 Apple 的 iPhone 17 Pro Max 原廠輪廓資料。
+
+四角使用固定大小的正方形 SVG 遮罩，中央以橫／直矩形填滿，四條邊的中段完全筆直。手機 R27、桌面 R32 的視覺尺度保留；卡片高度動畫只延長直邊，不拉伸角落。標準及 WebKit 遮罩共用同一幾何，無需依賴 `corner-shape`。不支援遮罩時保留普通圓角。
+
+角落遮罩向內部延伸 4% 與中央填色重疊，避免非整數像素的拼接白線，外側曲線不變。站點圓點與連線共用中心座標；切換行程時，連線由上往下延伸並依次輕彈圓點。介面採用純色選取面與按壓回饋，保留滑塊、模糊文字和高度過渡動畫；減少動態效果時停用新增動畫。
+
+`node scripts/write-island-corners.mjs` 可重建 `styles.css` 末尾的角落樣式，並檢查接點曲率及直邊長度。

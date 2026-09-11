@@ -1,0 +1,196 @@
+/* Short, interruptible dissolves keep the black arrival island readable. */
+.motion-text {
+  display: inline-block;
+}
+.motion-ghost {
+  position: absolute;
+  z-index: 50;
+  pointer-events: none;
+  user-select: none;
+  margin: 0;
+  padding: 0;
+  transform-origin: center;
+}
+.wait strong,
+.time-block strong {
+  display: inline-block;
+}
+.route-tabs::before {
+  background: #fff;
+  box-shadow: 0 3px 12px #18232c0c;
+}
+.direction-control::before {
+  background: #252a2d;
+  box-shadow: 0 2px 6px #14201812;
+}
+.route-tabs button,
+.direction-control button {
+  -webkit-tap-highlight-color: transparent;
+}
+.trip-row {
+  transition:
+    box-shadow 300ms ease,
+    transform 300ms var(--motion-ease);
+}
+.more-options > summary,
+.arrival-details > summary,
+.estimate-settings > summary,
+.stop-details > summary,
+.service-details > summary {
+  transition: color 200ms ease;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .trip-row:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px #19232e09;
+  }
+  .route-tabs button:hover {
+    transform: translateY(-1px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .motion-ghost {
+    display: none;
+  }
+}
+
+/* Tactile navigation: a single floating lens stretches between real buttons. */
+.has-lens::before {
+  display: none;
+}
+.segment-lens {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  top: var(--segment-inset);
+  bottom: var(--segment-inset);
+  border-radius: 16px;
+  transform-origin: center;
+  background: #fff;
+  box-shadow: 0 3px 10px #18232c12;
+}
+.direction-control .segment-lens {
+  border-radius: 10px;
+  background: #252a2d;
+  box-shadow: 0 3px 7px #18232c19;
+}
+.route-tabs button,
+.direction-control button,
+.refresh,
+.estimate-input button {
+  position: relative;
+  isolation: isolate;
+}
+.route-tabs button::after,
+.direction-control button::after,
+.refresh::after,
+.estimate-input button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: #ffffff12;
+  opacity: 0;
+  transition: opacity 520ms ease;
+}
+.route-tabs button:active::after,
+.direction-control button:active::after,
+.refresh:active::after,
+.estimate-input button:active::after {
+  opacity: 1;
+  transition-duration: 90ms;
+}
+.island {
+  position: relative;
+  isolation: isolate;
+}
+.motion-sheen {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  inset: 0;
+  background: #ffffff05;
+}
+.more-options > summary,
+.estimate-settings > summary,
+.stop-details > summary,
+.service-details > summary {
+  list-style: none;
+}
+.more-options:not([open]) > summary {
+  list-style: none;
+}
+summary::-webkit-details-marker {
+  display: none;
+}
+.more-options > summary::after,
+.estimate-settings > summary::after,
+.stop-details > summary::after,
+.service-details > summary::after {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin: 0 3px 3px 12px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 420ms var(--motion-ease);
+  opacity: 0.7;
+}
+details[open] > summary::after,
+details[data-expanded="true"] > summary::after {
+  transform: rotate(45deg);
+}
+details[data-expanded="false"] > summary::after {
+  transform: rotate(-45deg);
+}
+details[open] > :not(summary) {
+  animation: disclosure-materialize 440ms var(--motion-ease);
+  transform-origin: top center;
+}
+@keyframes disclosure-materialize {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateY(-8px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+  }
+}
+@media (max-width: 680px) {
+  .route-tabs .segment-lens {
+    border-radius: 13px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .motion-sheen {
+    display: none;
+  }
+}
+
+/* A quiet placeholder bridges fast requests without flashing loading copy. */
+.pending-arrival {
+  width: 100%;
+  min-height: 84px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+}
+.pending-arrival > span {
+  display: block;
+  height: 12px;
+  width: 78%;
+  border-radius: 6px;
+  background: #ffffff09;
+}
+.pending-arrival > span:first-child {
+  height: 22px;
+  width: 44%;
+  background: #ffffff0d;
+}

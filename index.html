@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width,initial-scale=1,viewport-fit=cover"
     />
-    <meta name="theme-color" content="#f5f6f8" />
+    <meta name="theme-color" content="#f4f5f7" />
     <meta
       name="description"
       content="56、56A、74K、75F 巴士到站時間。查詢 NOVO LAND、上水、大埔墟及教育大學的實時班次與預計抵達時間。"
@@ -17,7 +17,8 @@
     <link rel="icon" href="./favicon.svg?v=2" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=2" />
     <link rel="manifest" href="./manifest.json?v=2" />
-    <link rel="stylesheet" href="./styles.css?v=13" />
+    <link rel="stylesheet" href="./styles.css?v=flat4" />
+    <link rel="stylesheet" href="./motion.css?v=flat4" />
   </head>
   <body>
     <a class="skip" href="#main">跳至到站資訊</a>
@@ -34,35 +35,40 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
               /></svg></span
-          ><span>就到站<small>我的巴士行程</small></span></a
+          ><span>就到站<small>巴士到站</small></span></a
         >
-        <div class="hk-clock">
-          <span id="date">香港時間</span><time id="clock">--:--:--</time>
+        <div class="header-status">
+          <div class="hk-clock">
+            <span id="date">香港時間</span><time id="clock">--:--:--</time>
+          </div>
+          <span class="live-pill" id="connection">正在連線</span>
         </div>
       </header>
       <main id="main">
-        <div class="page-heading">
-          <div>
-            <h1 class="section-label">常用路線 · 即時到站</h1>
-          </div>
-          <span class="live-pill" id="connection">正在連線</span>
+        <div class="screen-heading">
+          <h1>我的行程</h1>
+          <span>香港 · 即時到站</span>
         </div>
         <nav class="route-tabs" aria-label="選擇巴士路線">
           <button type="button" data-route="56" aria-pressed="true">
             <span class="tab-number"
               >56 <span class="tab-plus">/</span> 56A</span
-            ><span>NOVO LAND ↔ 上水</span>
+            ><span class="tab-journey"
+              >NOVO LAND <span aria-hidden="true">↔</span> 上水</span
+            >
           </button>
           <button type="button" data-route="74K" aria-pressed="false">
             <span class="tab-number"
               >74K <span class="tab-plus">/</span> 75F</span
-            ><span>大埔墟 ↔ 教育大學</span>
+            ><span class="tab-journey"
+              >大埔墟 <span aria-hidden="true">↔</span> 教育大學</span
+            >
           </button>
         </nav>
         <div class="workspace">
           <section class="journey-panel" aria-labelledby="journeyHeading">
             <div class="panel-title">
-              <h2 id="journeyHeading">我的行程</h2>
+              <h2 id="journeyHeading">往返行程</h2>
               <span id="operator">城巴</span>
             </div>
             <div class="direction-control" role="group" aria-label="行程方向">
@@ -82,17 +88,15 @@
                 回 NOVO LAND
               </button>
             </div>
-            <div class="variant-wrap" id="variantWrap" hidden>
-              <label for="variant" id="variantLabel">74K 行車版本</label
-              ><select id="variant"></select>
-              <p id="variantHint" class="small muted"></p>
-            </div>
             <div class="station-fields">
               <div class="station-field origin">
+                <span class="station-line" aria-hidden="true"><span class="station-line-progress"></span></span>
+                <span class="station-dot" aria-hidden="true"></span>
                 <label for="board">上車站</label
                 ><select id="board" aria-label="上車站"></select>
               </div>
               <div class="station-field destination">
+                <span class="station-dot" aria-hidden="true"></span>
                 <label for="alight">落車站</label
                 ><select id="alight" aria-label="落車站"></select>
               </div>
@@ -101,7 +105,12 @@
               <span id="journeySummary">NOVO LAND → 上水站</span
               ><span id="stopCount">直達行程</span>
             </div>
-            <details class="more-options" id="moreOptions" open>
+            <div class="variant-wrap" id="variantWrap" hidden>
+              <label for="variant" id="variantLabel">74K 行車版本</label
+              ><select id="variant"></select>
+              <p id="variantHint" class="small muted"></p>
+            </div>
+            <details class="more-options" id="moreOptions">
               <summary>車程、沿途車站與服務資訊</summary>
               <div class="more-options-content">
                 <details class="estimate-settings">
@@ -163,21 +172,23 @@
             <div class="results-heading">
               <h2>即將到站 <span id="resultCount"></span></h2>
               <button type="button" class="refresh" id="refresh">
-                <span aria-hidden="true">↻</span> 更新
+                <span class="refresh-icon" aria-hidden="true"
+                  ><svg viewBox="0 0 24 24">
+                    <path
+                      d="M20 7v5h-5M19.2 11a7.4 7.4 0 1 0-1.6 5.8"
+                    /></svg></span
+                ><span class="refresh-label">更新</span>
               </button>
             </div>
             <p id="alert" class="alert" role="status" hidden></p>
-            <div id="hero" class="island empty-island">
-              <span class="island-eyebrow">下一班 · 上車站</span>
-              <h3>正在讀取到站時間</h3>
-              <p>連接巴士公司開放數據…</p>
-              <div class="loading-track" aria-hidden="true"></div>
+            <div class="island-shell">
+              <div id="hero" class="island empty-island">
+                <span class="island-eyebrow">下一班 · 上車站</span>
+                <div class="pending-arrival" aria-hidden="true">
+                  <span></span><span></span>
+                </div>
+              </div>
             </div>
-            <div class="following-head">
-              <h3>接下來的班次</h3>
-              <span>上車時間 / 預計抵達</span>
-            </div>
-            <div id="trips" class="trip-list"></div>
             <div class="refresh-status">
               <span id="updated" role="status">等待首次更新</span
               ><span id="nextRefresh">每 30 秒自動更新</span>
@@ -185,6 +196,11 @@
                 <span id="refreshProgress"></span>
               </div>
             </div>
+            <div class="following-head">
+              <h3>接下來的班次</h3>
+              <span>上車 / 預計抵達</span>
+            </div>
+            <div id="trips" class="trip-list"></div>
             <details class="arrival-details">
               <summary>
                 <span
@@ -201,9 +217,8 @@
           </section>
         </div>
         <footer>
-          <p>香港時間 · 城巴 / 九巴開放數據</p>
-          <p>網站每 30 秒查詢 · 九巴資料約每分鐘更新</p>
-          <a
+          <span>香港時間 · 城巴 / 九巴開放數據</span
+          ><a
             href="https://data.gov.hk/tc-data/dataset/hk-td-tis_21-etakmb"
             target="_blank"
             rel="noopener"
@@ -213,6 +228,6 @@
       </main>
     </div>
     <noscript>請啟用 JavaScript 以讀取實時到站時間。</noscript>
-    <script type="module" src="./app.js?v=13"></script>
+    <script type="module" src="./app.js?v=flat4"></script>
   </body>
 </html>
