@@ -1,7 +1,7 @@
-/* Short, interruptible dissolves keep the black arrival island readable. */
-.motion-text {
-  display: inline-block;
-}
+/* P5R-inspired paper cuts: solid plates, short moves, then a stable reading surface. */
+.motion-text,
+.wait strong,
+.time-block strong { display: inline-block; }
 .motion-ghost {
   position: absolute;
   z-index: 50;
@@ -11,76 +11,31 @@
   padding: 0;
   transform-origin: center;
 }
-.wait strong,
-.time-block strong {
-  display: inline-block;
-}
-.route-tabs::before {
-  background: #fff;
-  box-shadow: 0 3px 12px #18232c0c;
-}
-.direction-control::before {
-  background: #252a2d;
-  box-shadow: 0 2px 6px #14201812;
-}
 .route-tabs button,
-.direction-control button {
-  -webkit-tap-highlight-color: transparent;
-}
-.trip-row {
-  transition:
-    box-shadow 300ms ease,
-    transform 300ms var(--motion-ease);
-}
-.more-options > summary,
-.arrival-details > summary,
-.estimate-settings > summary,
-.stop-details > summary,
-.service-details > summary {
-  transition: color 200ms ease;
-}
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .trip-row:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px #19232e09;
-  }
-  .route-tabs button:hover {
-    transform: translateY(-1px);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .motion-ghost {
-    display: none;
-  }
-}
-
-/* Tactile navigation: a single floating lens stretches between real buttons. */
-.has-lens::before {
-  display: none;
-}
+.direction-control button { -webkit-tap-highlight-color: transparent; }
+.has-lens::before { display: none; }
 .segment-lens {
   position: absolute;
-  z-index: -1;
+  z-index: 0;
   pointer-events: none;
-  top: var(--segment-inset);
-  bottom: var(--segment-inset);
-  border-radius: 16px;
+  top: var(--segment-inset, 4px);
+  bottom: var(--segment-inset, 4px);
+  border-radius: 0;
   transform-origin: center;
-  background: #fff;
-  box-shadow: 0 3px 10px #18232c12;
+  background: var(--red, #e60012);
+  clip-path: polygon(4% 0, 100% 0, 96% 100%, 0 100%);
 }
 .direction-control .segment-lens {
-  border-radius: 10px;
-  background: #252a2d;
-  box-shadow: 0 3px 7px #18232c19;
+  background: var(--black, #101010);
+  clip-path: polygon(0 0, 100% 0, 94% 100%, 0 100%);
 }
+.route-tabs button,
+.direction-control button { z-index: 1; }
+.trip-row { transition: transform 130ms cubic-bezier(.16,.86,.22,1), box-shadow 130ms ease; }
 .route-tabs button,
 .direction-control button,
 .refresh,
-.estimate-input button {
-  position: relative;
-  isolation: isolate;
-}
+.estimate-input button { position: relative; isolation: isolate; }
 .route-tabs button::after,
 .direction-control button::after,
 .refresh::after,
@@ -88,23 +43,17 @@
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: inherit;
   pointer-events: none;
-  background: #ffffff12;
+  background: #ffffff;
   opacity: 0;
-  transition: opacity 520ms ease;
+  transition: opacity 110ms ease;
 }
 .route-tabs button:active::after,
 .direction-control button:active::after,
 .refresh:active::after,
-.estimate-input button:active::after {
-  opacity: 1;
-  transition-duration: 90ms;
-}
-.island {
-  position: relative;
-  isolation: isolate;
-}
+.estimate-input button:active::after { opacity: .14; }
+.island { position: relative; isolation: isolate; }
+/* The only gradient surface is this brief, narrow highlight requested for the card. */
 .island > .motion-sheen {
   position: absolute;
   z-index: 2;
@@ -112,96 +61,68 @@
   top: -25%;
   bottom: -25%;
   left: 0;
-  width: 80%;
-  background: linear-gradient(
-    100deg,
-    transparent 5%,
-    #ffffff02 30%,
-    #ffffff18 48%,
-    #e7ffd91c 52%,
-    #ffffff03 72%,
-    transparent 90%
-  );
+  width: 14%;
+  background: linear-gradient(90deg, transparent, #ffffff16 34%, #ffffffb8 50%, #ffffff16 66%, transparent);
 }
 .more-options > summary,
+.arrival-details > summary,
 .estimate-settings > summary,
 .stop-details > summary,
-.service-details > summary {
-  list-style: none;
-}
-.more-options:not([open]) > summary {
-  list-style: none;
-}
-summary::-webkit-details-marker {
-  display: none;
-}
+.service-details > summary { list-style: none; transition: color 120ms ease; }
+summary::-webkit-details-marker { display: none; }
 .more-options > summary::after,
 .estimate-settings > summary::after,
 .stop-details > summary::after,
 .service-details > summary::after {
   content: "";
   display: inline-block;
-  width: 7px;
-  height: 7px;
-  margin: 0 3px 3px 12px;
-  border-right: 1.5px solid currentColor;
-  border-bottom: 1.5px solid currentColor;
+  width: 8px;
+  height: 8px;
+  margin: 0 3px 2px 10px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
   transform: rotate(-45deg);
-  transition: transform 420ms var(--motion-ease);
-  opacity: 0.7;
+  transition: transform 180ms cubic-bezier(.16,.86,.22,1);
 }
 details[open] > summary::after,
-details[data-expanded="true"] > summary::after {
-  transform: rotate(45deg);
-}
-details[data-expanded="false"] > summary::after {
-  transform: rotate(-45deg);
-}
+details[data-expanded="true"] > summary::after { transform: rotate(45deg); }
+details[data-expanded="false"] > summary::after { transform: rotate(-45deg); }
 details[open] > :not(summary) {
-  animation: disclosure-materialize 440ms var(--motion-ease);
-  transform-origin: top center;
+  animation: disclosure-cut-in 240ms cubic-bezier(.16,.86,.22,1);
+  transform-origin: top left;
 }
-@keyframes disclosure-materialize {
-  from {
-    opacity: 0;
-    filter: blur(4px);
-    transform: translateY(-8px) scale(0.985);
-  }
-  to {
-    opacity: 1;
-    filter: blur(0);
-    transform: translateY(0) scale(1);
-  }
+@keyframes disclosure-cut-in {
+  from { opacity: 0; transform: translate(6px, -3px); }
+  to { opacity: 1; transform: translate(0, 0); }
 }
-@media (max-width: 680px) {
-  .route-tabs .segment-lens {
-    border-radius: 13px;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .motion-sheen {
-    display: none;
-  }
-}
-
-/* A quiet placeholder bridges fast requests without flashing loading copy. */
+/* Keep the existing 300ms quiet placeholder; never animate loading text into a flash. */
 .pending-arrival {
   width: 100%;
   min-height: 84px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 16px;
+  gap: 14px;
 }
 .pending-arrival > span {
   display: block;
   height: 12px;
-  width: 78%;
-  border-radius: 6px;
-  background: #ffffff09;
+  width: 72%;
+  background: #ffffff12;
+  clip-path: polygon(0 0, 100% 0, 96% 100%, 0 100%);
 }
-.pending-arrival > span:first-child {
-  height: 22px;
-  width: 44%;
-  background: #ffffff0d;
+.pending-arrival > span:first-child { height: 22px; width: 42%; background: #ffffff1c; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .trip-row:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--black, #101010); }
+  .route-tabs button:hover { transform: translateY(-1px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .motion-ghost,
+  .motion-sheen { display: none; }
+  .trip-row,
+  .route-tabs button,
+  .direction-control button,
+  summary,
+  summary::after { transition: none; }
+  details[open] > :not(summary) { animation: none; }
 }

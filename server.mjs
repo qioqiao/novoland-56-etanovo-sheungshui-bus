@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
-const PORT = Number(process.env.PORT) || 8756;
+const PORT = Number(process.env.PORT) || 8858;
 const publicFiles = new Set([
   "index.html",
   "inbound.html",
@@ -14,6 +14,16 @@ const publicFiles = new Set([
   "launch.css",
   "model.js",
   "styles.css",
+  "theme.js",
+  "theme.css",
+  "themes/classic/styles.css",
+  "themes/classic/motion.css",
+  "themes/classic/launch.css",
+  "themes/classic/favicon.svg",
+  "themes/classic/apple-touch-icon.png",
+  "themes/classic/icon-192.png",
+  "themes/classic/icon-512.png",
+  "themes/classic/manifest.json",
   "routes.json",
   "manifest.json",
   "favicon.svg",

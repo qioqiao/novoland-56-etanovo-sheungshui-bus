@@ -1,0 +1,36 @@
+/* A bounded opening transition. Without its opt-in attribute, the page is normal. */
+.launch-screen { display: none; }
+html[data-launch] .launch-screen {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+}
+.launch-stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+.launch-placeholder { transform: scale(2.7); }
+html[data-launch] .shell { pointer-events: none; }
+html[data-launch] .shell .brand-icon { visibility: hidden; }
+html[data-launch] :is(.header-status, .brand > span:last-child, .screen-heading,
+  .route-tabs, .journey-panel, .results-panel, footer) {
+  opacity: 0;
+}
+/* Motion ghosts must never escape the hidden opening surface. */
+html[data-launch] .motion-ghost { display: none; }
+.launch-flight {
+  position: fixed;
+  transform-origin: center;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-launch] .launch-screen { display: none; }
+  html[data-launch] .shell { pointer-events: auto; }
+  html[data-launch] .shell .brand-icon { visibility: visible; }
+  html[data-launch] :is(.header-status, .brand > span:last-child, .screen-heading,
+    .route-tabs, .journey-panel, .results-panel, footer) { opacity: 1; }
+}

@@ -1,6 +1,7 @@
-// Opening motion has its own lifecycle; ETA fetching and rendering never wait for it.
+// One opening lifecycle chooses a visual profile; ETA fetching never waits for it.
 export async function launchIntro() {
   const root = document.documentElement;
+  const smooth = root.dataset.theme === 'classic';
   const screen = document.querySelector('.launch-screen');
   const target = document.querySelector('.brand .brand-icon');
   const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -46,6 +47,8 @@ export async function launchIntro() {
   listen(window, 'scroll', finish, { passive: true });
   listen(document, 'visibilitychange', () => { if (document.hidden) finish(); });
   listen(document, 'bus:launch-timeout', finish);
+  // A theme swap cancels this opening; it never starts a second overlay or engine.
+  listen(document, 'bus:themechange', finish);
   listen(preference, 'change', () => { if (preference.matches) finish(); });
   // An intentional interaction always takes priority over the introduction.
   listen(document, 'pointerdown', finish, { capture: true });
@@ -66,34 +69,56 @@ export async function launchIntro() {
     const dy = window.innerHeight / 2 - rect.top - rect.height / 2;
     const start = `translate(${dx}px, ${dy}px) scale(2.7)`;
     flight.style.transform = start;
+    for (const color of smooth ? [] : ['red', 'black']) {
+      const slash = document.createElement('span');
+      slash.className = `launch-slash launch-slash-${color}`;
+      screen.append(slash);
+    }
     screen.append(flight);
     screen.querySelector('.launch-stage')?.remove();
-    // One quiet breathing beat reads as loading, without an endless spinner.
-    await play(logo, [
+    // Classic breathes quietly; P5R holds while two hard-edged plates cut past it.
+    await play(logo, smooth ? [
       { opacity: 1, transform: 'scale(1)' },
       { opacity: 1, transform: 'scale(1.035)', offset: .62 },
       { opacity: 1, transform: 'scale(1)' },
-    ], { duration: 460, easing: 'cubic-bezier(.22,1,.36,1)' });
+    ] : [
+      { opacity: 1, transform: 'scale(1)' },
+      { opacity: 1, transform: 'scale(1.055)', offset: .3 },
+      { opacity: 1, transform: 'scale(1)', offset: .5 },
+      { opacity: 1, transform: 'scale(1)' },
+    ], { duration: smooth ? 460 : 430, easing: smooth ? 'cubic-bezier(.22,1,.36,1)' : 'cubic-bezier(.16,.86,.22,1)' });
     if (done) return;
     root.dataset.launch = 'docking';
     await play(flight, [
       { transform: start },
       { transform: 'translate(0, 0) scale(1)' },
-    ], { duration: 650, easing: 'cubic-bezier(.65,0,.15,1)' });
+    ], { duration: smooth ? 650 : 500, easing: smooth ? 'cubic-bezier(.65,0,.15,1)' : 'cubic-bezier(.68,0,.18,1)' });
     if (done) return;
     root.dataset.launch = 'revealing';
-    // Reveal outer sections so live text and card-height animations never compete.
+    // Move each section as one piece, including its protruding accents and shadows.
+    // Cut masks belong to individual surfaces, not these outer containers.
     const selectors = [
       '.header-status', '.brand > span:last-child', '.screen-heading',
-      '.route-tabs', '.journey-panel', '.results-panel', 'footer',
+      '.route-tabs', ...(smooth ? ['.journey-panel', '.results-panel'] : ['.results-panel', '.journey-panel']), 'footer',
     ];
     let order = 0;
     const reveals = selectors.map(selector => document.querySelector(selector))
       .filter(element => element && element.getBoundingClientRect().height > 0)
-      .map(element => play(element, [
-        { opacity: 0, transform: 'translateY(12px)', filter: 'blur(5px)' },
-        { opacity: 1, transform: 'translateY(0)', filter: 'blur(0px)' },
-      ], { duration: 440, delay: order++ * 35, easing: 'cubic-bezier(.22,1,.36,1)' }));
+      .map(element => {
+        const frames = smooth ? [
+          { opacity: 0, transform: 'translateY(12px)', filter: 'blur(5px)' },
+          { opacity: 1, transform: 'translateY(0)', filter: 'blur(0px)' },
+        ] : [
+          { opacity: 0, transform: 'translate(12px, 5px)' },
+          { opacity: 1, transform: 'translate(-1px, 0)', offset: .8 },
+          { opacity: 1, transform: 'translate(0, 0)' },
+        ];
+        return play(element, frames, { duration: smooth ? 440 : 280, delay: order++ * 35, easing: smooth ? 'cubic-bezier(.22,1,.36,1)' : 'cubic-bezier(.16,.86,.22,1)' });
+      });
+    if (!smooth) reveals.push(play(document.querySelector('.topbar-rule'), [
+      { transform: 'scaleX(0)' },
+      { transform: 'scaleX(1)' },
+    ], { duration: 420, easing: 'cubic-bezier(.3,0,.2,1)' }));
     await Promise.all(reveals);
   } catch {
     // Animation support must never determine whether the timetable is usable.

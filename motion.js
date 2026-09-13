@@ -7,7 +7,9 @@ const motionPreference = window.matchMedia?.(
 const runningAnimations = new WeakMap();
 const activeMotion = new Set();
 const motionOwners = new WeakMap();
-const motionEase = "cubic-bezier(.22,1,.36,1)";
+const motionEase = "cubic-bezier(.16,.86,.22,1)";
+const classicEase = "cubic-bezier(.22,1,.36,1)";
+const classic = () => document.documentElement.dataset.theme === 'classic';
 const opening = () => document.documentElement.hasAttribute('data-launch');
 function playMotion(element, frames, options = {}, cleanup = () => {}) {
   runningAnimations.get(element)?.cancel();
@@ -15,11 +17,17 @@ function playMotion(element, frames, options = {}, cleanup = () => {}) {
     cleanup();
     return;
   }
-  const animation = element.animate(frames, {
-    duration: 440,
-    easing: motionEase,
-    ...options,
-  });
+  let animation;
+  try {
+    animation = element.animate(frames, {
+      duration: classic() ? 440 : 260,
+      easing: classic() ? classicEase : motionEase,
+      ...options,
+    });
+  } catch {
+    cleanup();
+    return;
+  }
   const entry = {
     element,
     cancel() {
@@ -51,18 +59,43 @@ document.addEventListener("visibilitychange", () => {
 });
 window.addEventListener("resize", stopMotion);
 window.addEventListener("scroll", stopMotion, { passive: true });
-function animateIn(element, distance = 8, duration = 440, blur = 0) {
+// The controller sends this before replacing theme CSS. Keep one engine and
+// remove old-theme effects without changing any live timetable or form nodes.
+document.addEventListener('bus:themechange', () => {
+  stopMotion();
+  document.querySelectorAll('.motion-ghost, .motion-sheen').forEach(node => node.remove());
+  pendingHeroHeight = null;
+  journeyTransition = false;
+});
+function animateIn(element, distance = 6, duration = classic() ? 440 : 260, blur = 0) {
+  const smooth = classic();
+  const time = smooth ? duration : Math.max(180, Math.min(320, duration));
+  if (element?.matches('.station-fields')) {
+    // Keep the rail and its endpoints in one fixed coordinate space. Only station
+    // labels move; the red progress stroke and diamond pulses run independently.
+    element.querySelectorAll('label, select').forEach(node => playMotion(node, smooth ? [
+      { opacity: .3, transform: 'translateY(' + distance + 'px)', filter: 'blur(' + blur + 'px)' },
+      { opacity: 1, transform: 'translateY(0)', filter: 'blur(0px)' },
+    ] : [
+      { opacity: 0, transform: 'translateY(' + Math.min(8, distance) + 'px)' },
+      { opacity: 1, transform: 'translateY(0)' },
+    ], { duration: time }));
+    return;
+  }
   return playMotion(
     element,
-    [
+    smooth ? [
+      { opacity: .3, transform: 'translateY(' + distance + 'px) scale(.985)', filter: 'blur(' + blur + 'px)' },
+      { opacity: 1, transform: 'translateY(0) scale(1)', filter: 'blur(0px)' },
+    ] : [
       {
-        opacity: 0.3,
-        transform: "translateY(" + distance + "px) scale(.985)",
-        filter: "blur(" + blur + "px)",
+        opacity: 0,
+        transform: "translateY(" + Math.min(8, distance) + "px)",
+        clipPath: "polygon(0 0, 92% 0, 100% 100%, 0 100%)",
       },
-      { opacity: 1, transform: "translateY(0) scale(1)", filter: "blur(0px)" },
+      { opacity: 1, transform: "translateY(0)", clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)" },
     ],
-    { duration },
+    { duration: time },
   );
 }
 function captureText(element) {
@@ -117,49 +150,60 @@ function captureText(element) {
   return ghost;
 }
 function dissolveText(element, ghost) {
+  const smooth = classic();
   if (ghost) {
     document.body.append(ghost);
     playMotion(
       ghost,
-      [
-        { opacity: 0.85, filter: "blur(0px)", transform: "translateY(0)" },
-        { opacity: 0, filter: "blur(4px)", transform: "translateY(-5px)" },
+      smooth ? [
+        { opacity: .85, filter: 'blur(0px)', transform: 'translateY(0)' },
+        { opacity: 0, filter: 'blur(4px)', transform: 'translateY(-5px)' },
+      ] : [
+        { opacity: 0.65, transform: "translateX(0)" },
+        { opacity: 0, transform: "translateX(-7px)" },
       ],
-      { duration: 230 },
+      { duration: smooth ? 230 : 150 },
       () => ghost.remove(),
     );
   }
   if (element.matches?.(".wait strong")) {
     playMotion(
       element,
-      [
+      smooth ? [
+        { opacity: 0, filter: 'blur(6px)', transform: 'translateY(32%) scale(.94)' },
+        { opacity: 1, filter: 'blur(0px)', transform: 'translateY(-2%) scale(1.01)', offset: .76 },
+        { opacity: 1, filter: 'blur(0px)', transform: 'translateY(0) scale(1)' },
+      ] : [
         {
           opacity: 0,
-          filter: "blur(6px)",
-          transform: "translateY(32%) scale(.94)",
+          transform: "translateY(12px)",
+          clipPath: "inset(0 0 90% 0)",
         },
         {
           opacity: 1,
-          filter: "blur(0px)",
-          transform: "translateY(-2%) scale(1.01)",
-          offset: 0.76,
+          transform: "translateY(-1px)",
+          clipPath: "inset(0 0 0 0)",
+          offset: 0.72,
         },
         {
           opacity: 1,
-          filter: "blur(0px)",
-          transform: "translateY(0) scale(1)",
+          transform: "translateY(0)",
+          clipPath: "inset(0 0 0 0)",
         },
       ],
-      { duration: 580 },
+      { duration: smooth ? 580 : 270 },
     );
   } else
     playMotion(
       element,
-      [
-        { opacity: 0, filter: "blur(4px)", transform: "translateY(5px)" },
-        { opacity: 1, filter: "blur(0px)", transform: "translateY(0)" },
+      smooth ? [
+        { opacity: 0, filter: 'blur(4px)', transform: 'translateY(5px)' },
+        { opacity: 1, filter: 'blur(0px)', transform: 'translateY(0)' },
+      ] : [
+        { opacity: 0, transform: "translateX(7px)", clipPath: "inset(0 72% 0 0)" },
+        { opacity: 1, transform: "translateX(0)", clipPath: "inset(0 0 0 0)" },
       ],
-      { duration: 460 },
+      { duration: smooth ? 460 : 220 },
     );
 }
 const quietText = new Set(["clock", "date", "nextRefresh", "updated", "alert"]);
@@ -179,8 +223,19 @@ const text = (id, value) => {
   dissolveText(span, ghost);
 };
 
-// A physical spring moves the selected lens. Retarget from the displayed position.
+// One solid selection plate cuts between commands, retargeted from its current position.
 const segmentLenses = new Map();
+// ETA content can introduce a scrollbar without a window resize. Track the grid
+// itself so an early-created plate stays aligned throughout the opening.
+const segmentResizeObserver = window.ResizeObserver ? new window.ResizeObserver(entries => {
+  for (const { target: group } of entries) {
+    const lens = segmentLenses.get(group);
+    if (lens) selectSegment(
+      group.matches('.route-tabs') ? '.route-tabs' : '.direction-control',
+      Number(lens.dataset.index), false,
+    );
+  }
+}) : null;
 function selectSegment(selector, index, animate = true) {
   const group = document.querySelector(selector);
   group.style.setProperty("--active-index", String(index));
@@ -197,6 +252,7 @@ function selectSegment(selector, index, animate = true) {
     group.prepend(lens);
     group.classList.add("has-lens");
     segmentLenses.set(group, lens);
+    segmentResizeObserver?.observe(group);
   }
   runningAnimations.get(lens)?.cancel();
   lens.dataset.index = String(index);
@@ -205,40 +261,32 @@ function selectSegment(selector, index, animate = true) {
   if (!before || same || !animate || !button.offsetWidth) return;
   const after = lens.getBoundingClientRect();
   const dx = before.left - after.left;
+  const smooth = classic();
   const scale = before.width / after.width;
-  const stretch = Math.min(0.16, (Math.abs(dx) / after.width) * 0.13);
+  const stretch = Math.min(.16, (Math.abs(dx) / after.width) * .13);
   playMotion(
     lens,
-    [
+    smooth ? [
+      { transform: 'translateX(' + dx + 'px) scaleX(' + scale + ')', offset: 0 },
+      { transform: 'translateX(' + dx * .45 + 'px) scaleX(' + (1 + stretch) + ') scaleY(.94)', offset: .28 },
+      { transform: 'translateX(' + -dx * .035 + 'px) scaleX(.975) scaleY(1.018)', offset: .64 },
+      { transform: 'translateX(' + dx * .006 + 'px) scaleX(1.007) scaleY(.997)', offset: .84 },
+      { transform: 'translateX(0) scale(1)', offset: 1 },
+    ] : [
       {
-        transform: "translateX(" + dx + "px) scaleX(" + scale + ")",
+        transform: "translateX(" + dx + "px)",
         offset: 0,
       },
       {
-        transform:
-          "translateX(" +
-          dx * 0.45 +
-          "px) scaleX(" +
-          (1 + stretch) +
-          ") scaleY(.94)",
-        offset: 0.28,
+        transform: "translateX(" + -Math.sign(dx) * 2 + "px)",
+        offset: 0.78,
       },
-      {
-        transform:
-          "translateX(" + -dx * 0.035 + "px) scaleX(.975) scaleY(1.018)",
-        offset: 0.64,
-      },
-      {
-        transform:
-          "translateX(" + dx * 0.006 + "px) scaleX(1.007) scaleY(.997)",
-        offset: 0.84,
-      },
-      { transform: "translateX(0) scale(1)", offset: 1 },
+      { transform: "translateX(0)", offset: 1 },
     ],
-    { duration: 620, easing: "cubic-bezier(.22,.68,.32,1)" },
+    { duration: smooth ? 620 : 280, easing: smooth ? 'cubic-bezier(.22,.68,.32,1)' : motionEase },
   );
 }
-window.addEventListener("resize", () => {
+function realignSegments() {
   for (const [group, lens] of segmentLenses) {
     selectSegment(
       group.matches(".route-tabs") ? ".route-tabs" : ".direction-control",
@@ -246,9 +294,13 @@ window.addEventListener("resize", () => {
       false,
     );
   }
-});
+}
+window.addEventListener('resize', realignSegments);
+// Theme padding can move buttons without resizing the group observed above.
+document.addEventListener('bus:themeapplied', realignSegments);
 function lightSweep(element) {
   if (!element?.animate || motionPreference?.matches || document.hidden || opening()) return;
+  const smooth = classic();
   element.querySelectorAll(".motion-sheen").forEach((node) => {
     runningAnimations.get(node)?.cancel();
     node.remove();
@@ -259,16 +311,20 @@ function lightSweep(element) {
   element.append(sheen);
   playMotion(
     sheen,
-    [
-      { transform: "translateX(-120%) skewX(-18deg)", opacity: 0, offset: 0 },
+    smooth ? [
+      { transform: 'translateX(-120%) skewX(-18deg)', opacity: 0, offset: 0 },
+      { transform: 'translateX(-30%) skewX(-18deg)', opacity: .7, offset: .35 },
+      { transform: 'translateX(160%) skewX(-18deg)', opacity: 0, offset: 1 },
+    ] : [
+      { transform: "translateX(-160%) skewX(-22deg)", opacity: 0, offset: 0 },
       {
-        transform: "translateX(-30%) skewX(-18deg)",
-        opacity: 0.7,
-        offset: 0.35,
+        transform: "translateX(300%) skewX(-22deg)",
+        opacity: 0.65,
+        offset: 0.45,
       },
-      { transform: "translateX(160%) skewX(-18deg)", opacity: 0, offset: 1 },
+      { transform: "translateX(900%) skewX(-22deg)", opacity: 0, offset: 1 },
     ],
-    { duration: 850, easing: "cubic-bezier(.2,.65,.3,1)" },
+    { duration: smooth ? 850 : 320, easing: smooth ? 'cubic-bezier(.2,.65,.3,1)' : 'cubic-bezier(.35,0,.6,1)' },
     () => sheen.remove(),
   );
 }
@@ -276,7 +332,7 @@ function morphIsland(element, before) {
   const after = element.offsetHeight;
   if (before && after && Math.abs(before - after) > 1) {
     playMotion(element, [{ height: before + "px" }, { height: after + "px" }], {
-      duration: 560,
+      duration: classic() ? 560 : 280,
     });
   }
   lightSweep(element);
@@ -288,13 +344,16 @@ document.addEventListener("click", (event) => {
   if (!button) return;
   playMotion(
     button,
-    [
-      { transform: "scale(.963)", offset: 0 },
-      { transform: "scale(1.015)", offset: 0.5 },
-      { transform: "scale(.998)", offset: 0.78 },
-      { transform: "scale(1)", offset: 1 },
+    classic() ? [
+      { transform: 'scale(.963)', offset: 0 },
+      { transform: 'scale(1.015)', offset: .5 },
+      { transform: 'scale(.998)', offset: .78 },
+      { transform: 'scale(1)', offset: 1 },
+    ] : [
+      { transform: "translate(2px, 2px)", offset: 0 },
+      { transform: "translate(0, 0)", offset: 1 },
     ],
-    { duration: 480 },
+    { duration: classic() ? 480 : 120 },
   );
   if (button.id === "refresh") lightSweep($("hero"));
 });
@@ -316,6 +375,7 @@ const heroText =
   ".island-eyebrow, .source-pill, .route-badge, .route-meta, .platform-note, .wait strong, .wait > span, .time-block strong, .ride-tag, h3, .empty-island > p";
 function setMarkup(id, html) {
   if (renderedMarkup.get(id) === html) return;
+  const smooth = classic();
   const element = $(id);
   const beforeHeight =
     id === "hero"
@@ -375,16 +435,19 @@ function setMarkup(id, html) {
         .forEach((node, index) => {
           playMotion(
             node,
-            [
+            smooth ? [
+              { opacity: 0, filter: 'blur(7px)', transform: 'translate(' + journeyDrift * 16 + 'px, 9px) scale(.985)' },
+              { opacity: 1, filter: 'blur(0px)', transform: 'translateY(0)' },
+            ] : [
               {
                 opacity: 0,
-                filter: "blur(7px)",
                 transform:
-                  "translate(" + journeyDrift * 16 + "px, 9px) scale(.985)",
+                  "translate(" + journeyDrift * 10 + "px, 4px)",
+                clipPath: "polygon(0 0, 82% 0, 90% 100%, 0 100%)",
               },
-              { opacity: 1, filter: "blur(0px)", transform: "translateY(0)" },
+              { opacity: 1, transform: "translate(0, 0)", clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)" },
             ],
-            { duration: 570, delay: index * 45, fill: "backwards" },
+            { duration: smooth ? 570 : 260, delay: index * (smooth ? 45 : 30), fill: "backwards" },
           );
         });
     } else {
@@ -408,32 +471,33 @@ function setMarkup(id, html) {
             { transform: "translateY(" + (previous.top - top) + "px)" },
             { transform: "translateY(0)" },
           ],
-          { duration: 520 },
+          { duration: smooth ? 520 : 260 },
         );
       } else if (!previous) {
         playMotion(
           node,
-          [
+          smooth ? [
+            { opacity: 0, filter: 'blur(4px)', transform: 'translateY(14px) scale(.98)' },
+            { opacity: 1, filter: 'blur(0px)', transform: 'translateY(0) scale(1)' },
+          ] : [
             {
               opacity: 0,
-              filter: "blur(4px)",
-              transform: "translateY(14px) scale(.98)",
+              transform: "translate(" + (index % 2 ? -8 : 8) + "px, 5px)",
             },
             {
               opacity: 1,
-              filter: "blur(0px)",
-              transform: "translateY(0) scale(1)",
+              transform: "translate(0, 0)",
             },
           ],
-          { duration: 540, delay: index * 45, fill: "backwards" },
+          { duration: smooth ? 540 : 200, delay: index * (smooth ? 45 : 30), fill: "backwards" },
         );
       } else if (node.textContent !== previous.text) {
         animateIn(
           node.querySelector(".trip-wait strong") ||
             node.querySelector("strong"),
-          7,
-          400,
-          3,
+          smooth ? 7 : 5,
+          smooth ? 400 : 220,
+          smooth ? 3 : 0,
         );
       }
     });
@@ -465,7 +529,7 @@ document.querySelectorAll("details").forEach((details) => {
     playMotion(
       details,
       [{ height: from + "px" }, { height: to + "px" }],
-      { duration: 420 },
+      { duration: classic() ? 420 : 260 },
       () => {
         details.open = expanded;
         details.style.overflow = "";
@@ -491,13 +555,13 @@ export function animateJourneyPath() {
     { transform: "scaleY(0)", opacity: 0 },
     { transform: "scaleY(1)", opacity: 0.85, offset: 0.65 },
     { transform: "scaleY(1)", opacity: 0 },
-  ], { duration: 760 });
+  ], { duration: classic() ? 760 : 260 });
   document.querySelectorAll(".station-dot").forEach((dot, index) => {
     playMotion(dot, [
       { transform: "scale(1)" },
-      { transform: "scale(1.25)", offset: 0.4 },
+      { transform: classic() ? 'scale(1.25)' : 'scale(1.18)', offset: 0.4 },
       { transform: "scale(1)" },
-    ], { duration: 440, delay: index * 240 });
+    ], { duration: classic() ? 440 : 180, delay: index * (classic() ? 240 : 70) });
   });
 }
 export function captureHeroHeight() {

@@ -8,7 +8,7 @@ import {
   setJourneyDrift,
   captureHeroHeight,
   animateJourneyPath,
-} from "./motion.js?v=intro6";
+} from "./motion.js?v=themes1";
 import {
   REFRESH_MS,
   EXPIRE_MS,
@@ -100,6 +100,9 @@ if (saved.route === state.route && saved.direction === state.direction) {
   state.boardId = saved.boardId;
   state.alightId = saved.alightId;
 }
+// Selection is already known from the URL/storage; its plate must not wait for
+// routes.json or appear only after the independently running introduction.
+syncJourneyControls(false);
 function persist() {
   try {
     localStorage.setItem(
@@ -172,15 +175,7 @@ function setOptions(id, stops, selected) {
     )
     .join("");
 }
-function setupJourney({ reset = false } = {}) {
-  if (reset) {
-    state.boardId = null;
-    state.alightId = null;
-    state.ride = null;
-    state.ride75 = null;
-  }
-  $("ride75Wrap").hidden = state.route === "56";
-  text("variantLabel", "74K 行車版本");
+function syncJourneyControls(animate = true) {
   document
     .querySelectorAll("[data-route]")
     .forEach((b) =>
@@ -194,11 +189,23 @@ function setupJourney({ reset = false } = {}) {
         String(b.dataset.direction === state.direction),
       ),
     );
-  selectSegment(".route-tabs", state.route === "56" ? 0 : 1);
-  selectSegment(".direction-control", state.direction === "out" ? 0 : 1);
-  text("operator", state.route === "56" ? "城巴" : "九巴");
-  text("outLabel", state.route === "56" ? "去上水" : "去教育大學");
-  text("inLabel", state.route === "56" ? "回 NOVO LAND" : "回大埔墟站");
+  const label = animate ? text : (id, value) => { $(id).textContent = value; };
+  label("operator", state.route === "56" ? "城巴" : "九巴");
+  label("outLabel", state.route === "56" ? "去上水" : "去教育大學");
+  label("inLabel", state.route === "56" ? "回 NOVO LAND" : "回大埔墟站");
+  selectSegment(".route-tabs", state.route === "56" ? 0 : 1, animate);
+  selectSegment(".direction-control", state.direction === "out" ? 0 : 1, animate);
+}
+function setupJourney({ reset = false } = {}) {
+  if (reset) {
+    state.boardId = null;
+    state.alightId = null;
+    state.ride = null;
+    state.ride75 = null;
+  }
+  $("ride75Wrap").hidden = state.route === "56";
+  text("variantLabel", "74K 行車版本");
+  syncJourneyControls();
   $("variantWrap").hidden = state.route === "56";
   $("stopDetails").hidden = state.route === "56";
   if (state.route === "56") {

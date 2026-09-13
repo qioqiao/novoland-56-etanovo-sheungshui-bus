@@ -1,14 +1,16 @@
-/* A bounded opening transition. Without its opt-in attribute, the page is normal. */
+/* Startup styling is opt-in: the page remains fully usable if no intro is armed. */
 .launch-screen { display: none; }
 html[data-launch] .launch-screen {
   display: block;
   position: fixed;
   inset: 0;
   z-index: 100;
+  overflow: hidden;
   pointer-events: none;
 }
 .launch-stage {
   position: absolute;
+  z-index: 3;
   inset: 0;
   display: grid;
   place-items: center;
@@ -16,21 +18,66 @@ html[data-launch] .launch-screen {
 .launch-placeholder { transform: scale(2.7); }
 html[data-launch] .shell { pointer-events: none; }
 html[data-launch] .shell .brand-icon { visibility: hidden; }
+html[data-launch] .topbar-rule { transform: scaleX(0); }
 html[data-launch] :is(.header-status, .brand > span:last-child, .screen-heading,
-  .route-tabs, .journey-panel, .results-panel, footer) {
-  opacity: 0;
-}
-/* Motion ghosts must never escape the hidden opening surface. */
+  .route-tabs, .journey-panel, .results-panel, footer) { opacity: 0; }
 html[data-launch] .motion-ghost { display: none; }
 .launch-flight {
   position: fixed;
+  z-index: 3;
   transform-origin: center;
   will-change: transform;
+}
+.launch-slash {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(128vw, 900px);
+  height: min(42vh, 300px);
+  pointer-events: none;
+  transform-origin: center;
+}
+.launch-slash-red {
+  z-index: 1;
+  background: var(--red, #e60012);
+  clip-path: polygon(7% 20%, 100% 0, 91% 78%, 0 100%);
+  transform: translate(-50%, -50%);
+  animation: launch-red-cut 240ms cubic-bezier(.16,.86,.22,1) both;
+}
+.launch-slash-black {
+  z-index: 2;
+  width: min(85vw, 600px);
+  height: min(28vh, 200px);
+  background: var(--black, #101010);
+  clip-path: polygon(2% 0, 100% 13%, 94% 100%, 0 86%);
+  transform: translate(-50%, -50%);
+  animation: launch-black-cut 260ms cubic-bezier(.16,.86,.22,1) both;
+}
+html[data-launch="docking"] .launch-slash-red { animation: launch-red-exit 240ms cubic-bezier(.65,0,.4,1) both; }
+html[data-launch="docking"] .launch-slash-black { animation: launch-black-exit 200ms cubic-bezier(.65,0,.4,1) both; }
+html[data-launch="revealing"] .launch-slash { display: none; }
+@keyframes launch-red-cut {
+  from { transform: translate(-110%, -40%); }
+  to { transform: translate(-50%, -50%); }
+}
+@keyframes launch-black-cut {
+  from { transform: translate(10%, -56%); }
+  to { transform: translate(-50%, -50%); }
+}
+@keyframes launch-red-exit {
+  from { transform: translate(-50%, -50%); }
+  to { transform: translate(85%, -75%); }
+}
+@keyframes launch-black-exit {
+  from { transform: translate(-50%, -50%); }
+  to { transform: translate(-185%, -25%); }
 }
 @media (prefers-reduced-motion: reduce) {
   html[data-launch] .launch-screen { display: none; }
   html[data-launch] .shell { pointer-events: auto; }
   html[data-launch] .shell .brand-icon { visibility: visible; }
+  html[data-launch] .topbar-rule { transform: scaleX(1); }
   html[data-launch] :is(.header-status, .brand > span:last-child, .screen-heading,
     .route-tabs, .journey-panel, .results-panel, footer) { opacity: 1; }
+  .launch-slash { animation: none !important; }
 }

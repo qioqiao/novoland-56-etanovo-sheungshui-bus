@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="zh-Hant-HK">
+<html lang="zh-Hant-HK" data-theme="p5r">
   <head>
     <meta charset="utf-8" />
     <meta
       name="viewport"
       content="width=device-width,initial-scale=1,viewport-fit=cover"
     />
-    <meta name="theme-color" content="#f4f5f7" />
+    <meta name="theme-color" content="#f5f0e6" />
     <meta
       name="description"
       content="56、56A、74K、75F 巴士到站時間。查詢 NOVO LAND、上水、大埔墟及教育大學的實時班次與預計抵達時間。"
@@ -14,12 +14,17 @@
     <meta name="apple-mobile-web-app-title" content="就到站" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <title>就到站 · 我的巴士行程</title>
-    <link rel="icon" href="./favicon.svg?v=intro6" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=2" />
-    <link rel="manifest" href="./manifest.json?v=2" />
-    <link rel="stylesheet" href="./styles.css?v=intro6" />
-    <link rel="stylesheet" href="./motion.css?v=sheen5" />
-    <link rel="stylesheet" href="./launch.css?v=intro6" />
+    <link rel="icon" href="./favicon.svg?v=themes1" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=themes1" />
+    <link rel="manifest" href="./manifest.json?v=themes1" />
+    <link rel="stylesheet" href="./styles.css?v=p5r4" data-theme-style="p5r" />
+    <link rel="stylesheet" href="./motion.css?v=themes1" data-theme-style="p5r" />
+    <link rel="stylesheet" href="./launch.css?v=themes1" data-theme-style="p5r" />
+    <link rel="stylesheet" href="./themes/classic/styles.css?v=themes1" data-theme-style="classic" media="not all" />
+    <link rel="stylesheet" href="./themes/classic/motion.css?v=themes1" data-theme-style="classic" media="not all" />
+    <link rel="stylesheet" href="./themes/classic/launch.css?v=themes1" data-theme-style="classic" media="not all" />
+    <link rel="stylesheet" href="./theme.css?v=themes1" />
+    <script src="./theme.js?v=themes1"></script>
     <script>
       (() => {
         try {
@@ -36,7 +41,7 @@
   <body>
     <div class="launch-screen" aria-hidden="true">
       <div class="launch-stage">
-        <span class="brand-icon launch-placeholder"><svg viewBox="0 0 32 32" focusable="false"><path d="M9 23 23 9M10 9h13v13" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" /></svg></span>
+        <span class="brand-icon launch-placeholder"><svg class="brand-symbol-p5r" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><polygon points="0,0 32,0 32,32 0,32" fill="#101010"/><polygon points="2,7 27,2 30,26 5,30" fill="#F5F0E6"/><polygon points="4,8.5 25.5,4 27.7,24.5 6.5,27.7" fill="#E60012"/><polygon points="7.47261364,22.3 21.18630682,8.58630682 23.41369318,10.81369318 9.7,24.52738636" fill="#F5F0E6"/><polygon points="9.025,8.125 23.875,8.125 23.875,11.275 9.025,11.275" fill="#F5F0E6"/><polygon points="20.725,8.125 23.875,8.125 23.875,22.975 20.725,22.975" fill="#F5F0E6"/></svg><svg class="brand-symbol-classic" viewBox="0 0 32 32" focusable="false" aria-hidden="true"><path d="M9 23 23 9M10 9h13v13" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" /></svg></span>
       </div>
     </div>
     <a class="skip" href="#main">跳至到站資訊</a>
@@ -44,16 +49,8 @@
       <header class="topbar">
         <a class="brand" href="./index.html" aria-label="就到站首頁"
           ><span class="brand-icon" aria-hidden="true"
-            ><svg viewBox="0 0 32 32" focusable="false">
-              <path
-                d="M9 23 23 9M10 9h13v13"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="3.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              /></svg></span
-          ><span>就到站<small>巴士到站</small></span></a
+            ><svg class="brand-symbol-p5r" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><polygon points="0,0 32,0 32,32 0,32" fill="#101010"/><polygon points="2,7 27,2 30,26 5,30" fill="#F5F0E6"/><polygon points="4,8.5 25.5,4 27.7,24.5 6.5,27.7" fill="#E60012"/><polygon points="7.47261364,22.3 21.18630682,8.58630682 23.41369318,10.81369318 9.7,24.52738636" fill="#F5F0E6"/><polygon points="9.025,8.125 23.875,8.125 23.875,11.275 9.025,11.275" fill="#F5F0E6"/><polygon points="20.725,8.125 23.875,8.125 23.875,22.975 20.725,22.975" fill="#F5F0E6"/></svg><svg class="brand-symbol-classic" viewBox="0 0 32 32" focusable="false" aria-hidden="true"><path d="M9 23 23 9M10 9h13v13" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" /></svg></span
+          ><span>就到站<small class="brand-tagline-p5r">掌握你的下一程</small><small class="brand-tagline-classic">巴士到站</small></span></a
         >
         <div class="header-status">
           <div class="hk-clock">
@@ -61,11 +58,13 @@
           </div>
           <span class="live-pill" id="connection">正在連線</span>
         </div>
+        <span class="topbar-rule" aria-hidden="true"></span>
       </header>
       <main id="main">
         <div class="screen-heading">
-          <h1>我的行程</h1>
-          <span>香港 · 即時到站</span>
+          <div class="heading-copy"><span class="chapter-mark" aria-hidden="true">01</span><h1>我的行程</h1></div>
+          <div class="heading-stamp"><strong>即時到站</strong><small>香港巴士・出發時刻</small></div>
+          <span class="classic-subtitle">香港 · 即時到站</span>
         </div>
         <nav class="route-tabs" aria-label="選擇巴士路線">
           <button type="button" data-route="56" aria-pressed="true">
@@ -235,6 +234,7 @@
           </section>
         </div>
         <footer>
+          <div class="footer-meta">
           <span>香港時間 · 城巴 / 九巴開放數據</span
           ><a
             href="https://data.gov.hk/tc-data/dataset/hk-td-tis_21-etakmb"
@@ -242,11 +242,17 @@
             rel="noopener"
             >資料來源 ↗</a
           >
+          </div>
+          <button type="button" class="theme-toggle" id="themeToggle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true" focusable="false"><path d="M9 4H4v5M4 4l5 5m6 11h5v-5m0 5-5-5"/><path d="M5 14a7 7 0 0 0 11.5 3.5M19 10A7 7 0 0 0 7.5 6.5"/></svg>
+            <span data-theme-toggle-label>切換至經典風格</span>
+          </button>
+          <span class="theme-status" id="themeStatus" role="status" aria-live="polite"></span>
         </footer>
       </main>
     </div>
     <noscript>請啟用 JavaScript 以讀取實時到站時間。</noscript>
-    <script type="module" src="./launch.js?v=intro6"></script>
-    <script type="module" src="./app.js?v=intro6"></script>
+    <script type="module" src="./launch.js?v=themes1"></script>
+    <script type="module" src="./app.js?v=themes1"></script>
   </body>
 </html>

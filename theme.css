@@ -1,0 +1,26 @@
+/* Shared controls and small adapters for the original classic layout. */
+.brand-icon .brand-symbol-classic,
+.classic-subtitle,
+.brand .brand-tagline-classic { display: none; }
+html[data-theme="classic"] .brand-icon .brand-symbol-p5r,
+html[data-theme="classic"] .chapter-mark,
+html[data-theme="classic"] .heading-stamp,
+html[data-theme="classic"] .brand-tagline-p5r,
+html[data-theme="classic"] .topbar-rule { display: none; }
+html[data-theme="classic"] .brand-icon .brand-symbol-classic,
+html[data-theme="classic"] .classic-subtitle,
+html[data-theme="classic"] .brand-tagline-classic { display: block; }
+/* Keep the selection layer fixes when using the original rounded surfaces. */
+html[data-theme="classic"] :is(.route-tabs, .direction-control)::before,
+html[data-theme="classic"] .segment-lens { z-index: 0; }
+html[data-theme="classic"] :is(.route-tabs, .direction-control) button { z-index: 1; }
+footer { display: flex; flex-direction: column; align-items: stretch; gap: 16px; }
+.footer-meta { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 20px; }
+.theme-toggle { display: inline-flex; align-items: center; justify-content: center; align-self: center; gap: 9px; padding: 10px 20px; min-height: 44px; font-size: .8125rem; font-weight: 750; background: var(--ink); color: var(--paper); border: 2px solid var(--ink); transition: opacity 150ms ease, transform 150ms ease; }
+.theme-toggle svg { width: 18px; height: 18px; flex: none; }
+.theme-toggle:active { transform: scale(.97); }
+html[data-theme="p5r"] .theme-toggle { box-shadow: 3px 3px 0 var(--red); }
+html[data-theme="classic"] .theme-toggle { color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 3px 12px #18232c08; font-weight: 600; }
+.theme-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.theme-status.is-error { position: static; width: auto; height: auto; clip-path: none; white-space: normal; text-align: center; font-size: .8125rem; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { .theme-toggle { transition: none; } }
