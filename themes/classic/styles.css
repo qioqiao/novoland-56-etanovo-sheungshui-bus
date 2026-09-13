@@ -697,11 +697,15 @@ summary {
 }
 .wait {
   display: flex;
+  flex-shrink: 0;
   align-items: baseline;
   gap: 8px;
   white-space: nowrap;
 }
 .wait strong {
+  /* Keep the final glyph's negative tracking out of the gap before the unit. */
+  flex-shrink: 0;
+  padding-inline-end: 0.07em;
   font-size: 5.5rem;
   font-weight: 530;
   letter-spacing: -0.07em;
@@ -716,6 +720,7 @@ summary {
   color: var(--accent);
 }
 .wait.words strong {
+  padding-inline-end: 0.04em;
   font-size: 2.3rem;
   letter-spacing: -0.04em;
 }
@@ -870,13 +875,16 @@ summary {
 }
 .trip-wait {
   display: flex;
+  flex-shrink: 0;
   align-items: baseline;
-  gap: 5px;
+  gap: 6px;
   font-size: 0.75rem;
   color: #8a949f;
   white-space: nowrap;
 }
 .trip-wait strong {
+  flex-shrink: 0;
+  padding-inline-end: 0.04em;
   color: #323941;
   font-size: 1.7rem;
   font-weight: 650;
@@ -1187,7 +1195,7 @@ footer a {
     font-size: 1.5rem;
   }
   .trip-wait {
-    gap: 4px;
+    gap: 6px;
     font-size: 0.75rem;
   }
   .trip-info .platform-note {

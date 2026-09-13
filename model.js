@@ -28,12 +28,13 @@ export const isScheduled = (row) =>
   /原定|預定|scheduled/i.test(`${row.rmk_tc || ""} ${row.rmk_en || ""}`);
 export function parseEta(
   payload,
-  { operator, route, bound, service, seq, destRe },
+  { operator, route, bound, service, seq, destRe, includeExpired = false },
   now = Date.now(),
 ) {
   if (!payload || !Array.isArray(payload.data))
     throw new Error("到站資料格式不正確");
   const seen = new Set();
+  const responseAt = Date.parse(payload.data_timestamp || payload.generated_timestamp);
   return payload.data
     .filter(
       (r) =>
@@ -49,10 +50,11 @@ export function parseEta(
       service,
       seq,
       eta: Date.parse(r.eta),
-      sourceAt: Date.parse(
-        r.data_timestamp ||
-          payload.data_timestamp ||
-          payload.generated_timestamp,
+      // A newly generated response may still contain old predictions; neither
+      // timestamp may make the other appear newer than the provider sent it.
+      sourceAt: Math.min(
+        Date.parse(r.data_timestamp || payload.data_timestamp || payload.generated_timestamp),
+        Number.isFinite(responseAt) ? responseAt : Infinity,
       ),
       scheduled: isScheduled(r),
       remark: r.rmk_tc || "",
@@ -64,7 +66,7 @@ export function parseEta(
         r.eta >= now - 15000 &&
         Number.isFinite(r.sourceAt) &&
         r.sourceAt <= now + 60000 &&
-        now - r.sourceAt < EXPIRE_MS,
+        (includeExpired || now - r.sourceAt < EXPIRE_MS),
     )
     .sort((a, b) => a.eta - b.eta)
     .filter((r) => {

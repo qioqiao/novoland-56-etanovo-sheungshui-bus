@@ -138,11 +138,12 @@ summary { min-height: 44px; font-size: .875rem; list-style: none; }
 .route-56A,.route-75F { background: var(--paper); color: var(--ink); }
 .route-meta { font-size: .875rem; color: #d0ccc5; margin-top: 13px; }
 .platform-note { font-size: .8125rem; color: #b4b0a8; margin-top: 6px; line-height: 1.55; overflow-wrap: anywhere; }
-.wait { display: flex; align-items: baseline; gap: 7px; white-space: nowrap; }
-.wait strong { font-family: 'Arial Black','Helvetica Neue',Arial,sans-serif; font-size: clamp(5.5rem,8vw,7.2rem); font-weight: 950; font-variant-numeric: tabular-nums; letter-spacing: -.085em; line-height: .95; }
+.wait { display: flex; flex-shrink: 0; align-items: baseline; gap: 10px; white-space: nowrap; }
+/* Restore the last glyph's advance so tight digit tracking cannot eat the unit gap. */
+.wait strong { flex-shrink: 0; padding-inline-end: .085em; font-family: 'Arial Black','Helvetica Neue',Arial,sans-serif; font-size: clamp(5.5rem,8vw,7.2rem); font-weight: 950; font-variant-numeric: tabular-nums; letter-spacing: -.085em; line-height: .95; }
 .wait > span { font-size: .875rem; font-weight: 700; color: #c7c3bc; }
 .wait.soon strong { color: var(--gold); }
-.wait.words strong { font-family: inherit; font-size: 2.6rem; letter-spacing: -.055em; font-weight: 900; }
+.wait.words strong { padding-inline-end: .055em; font-family: inherit; font-size: 2.6rem; letter-spacing: -.055em; font-weight: 900; }
 .island-bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; border-top: 2px solid #4c4b46; padding-top: 17px; }
 .time-pair { display: flex; align-items: center; gap: 17px; }
 .time-block { display: flex; flex-direction: column; gap: 3px; }
@@ -170,8 +171,8 @@ summary { min-height: 44px; font-size: .875rem; list-style: none; }
 .trip-info > strong { font-family: 'Helvetica Neue',Arial,sans-serif; font-size: 1.15rem; font-weight: 850; font-variant-numeric: tabular-nums; }
 .trip-info > strong > span { color: var(--red); margin: 0 8px; font-size: .9rem; }
 .trip-info p { font-size: .8rem; color: var(--muted); margin-top: 4px; line-height: 1.6; }
-.trip-wait { display: flex; align-items: baseline; gap: 4px; color: var(--muted); font-size: .75rem; white-space: nowrap; }
-.trip-wait strong { font-family: 'Arial Black',Arial,sans-serif; font-size: 2rem; font-weight: 950; letter-spacing: -.07em; color: var(--ink); font-variant-numeric: tabular-nums; }
+.trip-wait { display: flex; flex-shrink: 0; align-items: baseline; gap: 6px; color: var(--muted); font-size: .75rem; white-space: nowrap; }
+.trip-wait strong { flex-shrink: 0; padding-inline-end: .07em; font-family: 'Arial Black',Arial,sans-serif; font-size: 2rem; font-weight: 950; letter-spacing: -.07em; color: var(--ink); font-variant-numeric: tabular-nums; }
 .empty-list { padding: 22px 20px; font-size: .875rem; line-height: 1.75; color: var(--muted); border: 2px dashed #b3ac9f; }
 .arrival-details { margin-top: 25px; border-top: 3px solid var(--ink); padding-top: 3px; }
 .arrival-details > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; font-weight: 850; }
@@ -241,7 +242,7 @@ noscript { display: block; padding: 16px; text-align: center; }
   .route-badge { --badge-pad-y: 7px; --badge-pad-x: 12px; min-width: 61px; font-size: 1.75rem; }
   .route-meta { font-size: .875rem; margin-top: 10px; }
   .platform-note { font-size: .875rem; margin-top: 5px; }
-  .wait { gap: 5px; }
+  .wait { gap: 8px; }
   .wait strong { font-size: clamp(4rem,20vw,5.25rem); }
   .wait > span { font-size: .75rem; }
   .wait.words strong { font-size: 1.8rem; }
@@ -262,7 +263,7 @@ noscript { display: block; padding: 16px; text-align: center; }
   .trip-info > strong { font-size: 1rem; }
   .trip-info > strong > span { margin: 0 5px; }
   .trip-info p { font-size: .75rem; }
-  .trip-wait { flex-direction: column; align-items: flex-end; gap: 0; font-size: .65rem; line-height: 1.2; }
+  .trip-wait { flex-direction: column; align-items: flex-end; gap: 2px; font-size: .65rem; line-height: 1.2; }
   .trip-wait strong { font-size: 1.85rem; }
   footer { font-size: .6875rem; margin-top: 28px; }
 }

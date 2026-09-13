@@ -8,7 +8,7 @@ import {
   setJourneyDrift,
   captureHeroHeight,
   animateJourneyPath,
-} from "./motion.js?v=themes1";
+} from "./motion.js?v=selection4";
 import {
   REFRESH_MS,
   EXPIRE_MS,
@@ -25,7 +25,7 @@ import {
   variantLabel,
   freshness,
   reconcileKmb,
-} from "./model.js";
+} from "./model.js?v=freshness2";
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) =>
@@ -445,12 +445,9 @@ async function refresh({ replace = false } = {}) {
     const job = jobs[i];
     if (result.status === "fulfilled") {
       const { json } = result.value;
-      const rowTimes = json.data
-        .map((r) => Date.parse(r.data_timestamp))
-        .filter(Number.isFinite);
-      const sourceAt = rowTimes.length
-        ? Math.min(...rowTimes)
-        : Date.parse(json.data_timestamp || json.generated_timestamp);
+      // Response age and individual forecast age are different. An unrelated
+      // stop/direction in a route-wide response must not age this journey.
+      const sourceAt = Date.parse(json.data_timestamp || json.generated_timestamp);
       state.feeds.set(job.key, {
         json,
         sourceAt,
@@ -473,7 +470,7 @@ async function refresh({ replace = false } = {}) {
   $("hero").setAttribute("aria-busy", "false");
   render();
 }
-function rowsFor(side, now) {
+function rowsFor(side, now, { includeExpired = false } = {}) {
   const all = [];
   if (state.route === "56") {
     for (const route of ["56", "56A"]) {
@@ -482,7 +479,7 @@ function rowsFor(side, now) {
       const cfg = CTB[state.direction];
       const rows = parseEta(
         feed.json,
-        { operator: "CTB", route, bound: cfg.bound, destRe: cfg.destRe },
+        { operator: "CTB", route, bound: cfg.bound, destRe: cfg.destRe, includeExpired },
         now,
       );
       const ride =
@@ -501,6 +498,7 @@ function rowsFor(side, now) {
           bound: v.bound,
           service: v.service,
           seq: v.pair[side].seq,
+          includeExpired,
         },
         now,
       );
@@ -575,9 +573,22 @@ function render() {
   const jobs = feedJobs(),
     feeds = jobs.map((j) => state.feeds.get(j.key));
   const failed = feeds.filter((f) => f?.failed).length;
-  const stale = feeds.some(
-    (f) => f?.json && freshness(f.sourceAt, now) !== "fresh",
+  const board = rowsFor("board", now),
+    arrivals = rowsFor("alight", now);
+  // Include expired forecasts only for the warning, so an old source remains
+  // visible as a problem after its ETA card has been removed at five minutes.
+  // An expired duplicate from another service must not override a matching,
+  // current prediction that is already shown by the normal reconciliation.
+  const forecasts = [["board", board], ["alight", arrivals]].flatMap(([side, visible]) => {
+    const key = r => `${r.route}/${r.bound}/${r.eta}`;
+    const shown = new Set(visible.map(key));
+    return [...visible, ...rowsFor(side, now, { includeExpired: true }).filter(r => !shown.has(key(r)))];
+  });
+  const staleForecast = forecasts.some(r => freshness(r.sourceAt, now) !== "fresh");
+  const staleResponse = feeds.some(
+    (f) => f?.json && Number.isFinite(f.sourceAt) && freshness(f.sourceAt, now) !== "fresh",
   );
+  const stale = staleForecast || staleResponse;
   const offline = !navigator.onLine;
   const loading = !state.loaded;
   const warning = offline || failed > 0 || stale;
@@ -589,7 +600,9 @@ function render() {
     );
   if (stale)
     messages.push(
-      "部分資料已超過 2 分鐘，請勿依賴舊倒數；超過 5 分鐘會停止顯示。",
+      staleForecast
+        ? "巴士公司的部分預報已超過 2 分鐘；已暫停舊倒數，超過 5 分鐘會隱藏。"
+        : "巴士公司回傳的資料已超過 2 分鐘，暫未取得最新預報。",
     );
   if (state.metadataWarning)
     messages.push("車站資料暫用已核對版本，稍後會重試更新。");
@@ -602,12 +615,10 @@ function render() {
       : loading
         ? "正在連線"
         : warning
-          ? "資料待更新"
+          ? stale && !failed ? "預報待更新" : "資料待更新"
           : "自動更新中",
   );
   $("connection").classList.toggle("warning", warning);
-  const board = rowsFor("board", now),
-    arrivals = rowsFor("alight", now);
   text("resultCount", board.length ? `${board.length} 班` : "");
   const pair = selectedPair();
   const next = board[0];
@@ -659,14 +670,13 @@ function render() {
       })
       .join("") || '<p class="empty-list">落車站暫未有到站預報</p>',
   );
-  const sources = feeds
-    .filter((f) => f?.json)
-    .map((f) => f.sourceAt)
+  const sources = forecasts
+    .map((r) => r.sourceAt)
     .filter(Number.isFinite);
   text(
     "updated",
-    sources.length
-      ? `資料時間 ${hkTime(Math.min(...sources), true)}${failed ? " · 更新失敗" : ""}`
+    state.lastSuccess
+      ? `已檢查 ${hkTime(state.lastSuccess, true)}${sources.length ? ` · 預報 ${hkTime(Math.min(...sources), true)}` : ""}${failed ? " · 部分連線失敗" : ""}`
       : state.loaded
         ? "未取得有效資料"
         : "等待首次更新",

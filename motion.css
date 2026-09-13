@@ -29,6 +29,12 @@
   background: var(--black, #101010);
   clip-path: polygon(0 0, 100% 0, 94% 100%, 0 100%);
 }
+/* Letter colour follows the moving black plate without an unreadable white
+   label appearing on the pale destination before the plate reaches it. */
+.direction-control.has-lens button {
+  color: #fff;
+  mix-blend-mode: difference;
+}
 .route-tabs button,
 .direction-control button { z-index: 1; }
 .trip-row { transition: transform 130ms cubic-bezier(.16,.86,.22,1), box-shadow 130ms ease; }

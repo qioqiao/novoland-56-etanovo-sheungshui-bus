@@ -51,14 +51,19 @@ function playMotion(element, frames, options = {}, cleanup = () => {}) {
   return entry;
 }
 const stopMotion = () => [...activeMotion].forEach((entry) => entry.cancel());
+// Plates live inside their controls, so scrolling cannot detach them. Only
+// viewport-positioned text copies and content effects need to stop on scroll.
+const stopContentMotion = () => [...activeMotion]
+  .filter(entry => !entry.element.classList?.contains('segment-lens'))
+  .forEach(entry => entry.cancel());
 motionPreference?.addEventListener?.("change", () => {
   if (motionPreference.matches) stopMotion();
 });
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) stopMotion();
 });
-window.addEventListener("resize", stopMotion);
-window.addEventListener("scroll", stopMotion, { passive: true });
+window.addEventListener("resize", stopContentMotion);
+window.addEventListener("scroll", stopContentMotion, { passive: true });
 // The controller sends this before replacing theme CSS. Keep one engine and
 // remove old-theme effects without changing any live timetable or form nodes.
 document.addEventListener('bus:themechange', () => {
@@ -70,6 +75,9 @@ document.addEventListener('bus:themechange', () => {
 function animateIn(element, distance = 6, duration = classic() ? 440 : 260, blur = 0) {
   const smooth = classic();
   const time = smooth ? duration : Math.max(180, Math.min(320, duration));
+  // Mobile P5R places the unit below the list number. Enter from above so the
+  // moving number never crosses the unit while its value changes.
+  if (element?.matches('.trip-wait strong')) distance = -Math.abs(distance);
   if (element?.matches('.station-fields')) {
     // Keep the rail and its endpoints in one fixed coordinate space. Only station
     // labels move; the red progress stroke and diamond pulses run independently.
@@ -107,6 +115,13 @@ function captureText(element) {
     document.hidden
   )
     return null;
+  // Countdown width changes immediately (10 → 9, 1 → 即將). A body-positioned
+  // copy of the old number or unit can cover its newly laid-out neighbour.
+  // Keep the incoming animation, with one visible countdown in its own layout.
+  if (element.matches?.('.wait strong, .wait > span')) return null;
+  // P5R direction labels invert against the moving plate. A detached copy
+  // would lose that contrast and briefly paint white text on the pale track.
+  if (!classic() && element.closest?.('.direction-control.has-lens')) return null;
   // Do not resurrect a half-visible incoming label as a fully opaque ghost.
   for (let ancestor = element; ancestor; ancestor = ancestor.parentElement) {
     if (runningAnimations.has(ancestor)) return null;
@@ -170,9 +185,9 @@ function dissolveText(element, ghost) {
     playMotion(
       element,
       smooth ? [
-        { opacity: 0, filter: 'blur(6px)', transform: 'translateY(32%) scale(.94)' },
-        { opacity: 1, filter: 'blur(0px)', transform: 'translateY(-2%) scale(1.01)', offset: .76 },
-        { opacity: 1, filter: 'blur(0px)', transform: 'translateY(0) scale(1)' },
+        { opacity: 0, filter: 'blur(6px)', transform: 'translateY(32%) scale(.94)', clipPath: 'inset(-40% 0)' },
+        { opacity: 1, filter: 'blur(0px)', transform: 'translateY(-2%) scale(1.01)', clipPath: 'inset(-40% 0)', offset: .76 },
+        { opacity: 1, filter: 'blur(0px)', transform: 'translateY(0) scale(1)', clipPath: 'inset(-40% 0)' },
       ] : [
         {
           opacity: 0,
@@ -244,6 +259,12 @@ function selectSegment(selector, index, animate = true) {
   const button = group.querySelectorAll("button")[index];
   if (!button) return;
   const same = lens?.dataset.index === String(index);
+  const left = button.offsetLeft;
+  const width = button.offsetWidth;
+  // setupJourney and ResizeObserver may repeat the same target while a plate
+  // is in flight. Compare its destination, not its animated screen position.
+  if (same && parseFloat(lens.style.left) === left && parseFloat(lens.style.width) === width) return;
+  const continuing = same && runningAnimations.has(lens);
   const before = lens?.getBoundingClientRect();
   if (!lens) {
     lens = document.createElement("span");
@@ -256,11 +277,11 @@ function selectSegment(selector, index, animate = true) {
   }
   runningAnimations.get(lens)?.cancel();
   lens.dataset.index = String(index);
-  lens.style.left = button.offsetLeft + "px";
-  lens.style.width = button.offsetWidth + "px";
-  if (!before || same || !animate || !button.offsetWidth) return;
+  lens.style.left = left + "px";
+  lens.style.width = width + "px";
+  if (!before || (!animate && !continuing) || !width) return;
   const after = lens.getBoundingClientRect();
-  const dx = before.left - after.left;
+  const dx = before.left - after.left + (before.width - after.width) / 2;
   const smooth = classic();
   const scale = before.width / after.width;
   const stretch = Math.min(.16, (Math.abs(dx) / after.width) * .13);
@@ -273,17 +294,13 @@ function selectSegment(selector, index, animate = true) {
       { transform: 'translateX(' + dx * .006 + 'px) scaleX(1.007) scaleY(.997)', offset: .84 },
       { transform: 'translateX(0) scale(1)', offset: 1 },
     ] : [
-      {
-        transform: "translateX(" + dx + "px)",
-        offset: 0,
-      },
-      {
-        transform: "translateX(" + -Math.sign(dx) * 2 + "px)",
-        offset: 0.78,
-      },
-      { transform: "translateX(0)", offset: 1 },
+      // One continuous deceleration: separate per-segment easings previously
+      // braked to zero midway, then restarted and reversed at the destination.
+      { transform: `translateX(${dx}px) scaleX(${scale})`, offset: 0 },
+      { transform: "translateX(0) scaleX(1)", offset: 1 },
     ],
-    { duration: smooth ? 620 : 280, easing: smooth ? 'cubic-bezier(.22,.68,.32,1)' : motionEase },
+    { duration: continuing ? (smooth ? 380 : 220) : (smooth ? 620 : 360),
+      easing: smooth ? 'cubic-bezier(.22,.68,.32,1)' : 'cubic-bezier(.22,.8,.26,1)' },
   );
 }
 function realignSegments() {
@@ -540,9 +557,7 @@ document.querySelectorAll("details").forEach((details) => {
 });
 
 export function beginJourneyMotion() {
-  [...activeMotion]
-    .filter((entry) => !entry.element.classList?.contains("segment-lens"))
-    .forEach((entry) => entry.cancel());
+  stopContentMotion();
   journeyTransition = true;
 }
 export function setJourneyDrift(direction) {
