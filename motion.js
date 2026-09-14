@@ -11,6 +11,65 @@ const motionEase = "cubic-bezier(.16,.86,.22,1)";
 const classicEase = "cubic-bezier(.22,1,.36,1)";
 const classic = () => document.documentElement.dataset.theme === 'classic';
 const opening = () => document.documentElement.hasAttribute('data-launch');
+// Canvas measures the actual glyph ink; the displayed number remains selectable
+// HTML text. A narrow "1" must not inherit a wide invisible monospace sidebearing.
+const numeralMetrics = new Map();
+let numeralContext;
+function clearCountdownSpacing() {
+  document.querySelectorAll('.optical-number').forEach(element => {
+    element.textContent = element.textContent;
+    element.classList.remove('optical-number');
+  });
+}
+function spaceCountdowns(scope = document) {
+  if (classic()) return;
+  const elements = scope.querySelectorAll('.wait strong, .trip-wait strong');
+  if (!elements.length) return;
+  try {
+    if (numeralContext === undefined) numeralContext = document.createElement('canvas').getContext?.('2d') || null;
+    if (!numeralContext) return;
+    for (const element of elements) {
+      const value = element.textContent;
+      if (!/^\d{1,4}$/.test(value)) continue;
+      const style = window.getComputedStyle(element);
+      const font = `${style.fontStyle || 'normal'} ${style.fontWeight || 'normal'} 100px ${style.fontFamily}`;
+      let metrics = numeralMetrics.get(font);
+      if (!metrics) {
+        numeralContext.font = font;
+        numeralContext.textAlign = 'left';
+        numeralContext.textBaseline = 'alphabetic';
+        numeralContext.direction = 'ltr';
+        numeralContext.fontKerning = 'none';
+        metrics = [...'0123456789'].map(digit => {
+          const measured = numeralContext.measureText(digit);
+          return { width: (measured.actualBoundingBoxLeft + measured.actualBoundingBoxRight) / 100,
+            indent: measured.actualBoundingBoxLeft / 100 };
+        });
+        if (!metrics.every(metric => Number.isFinite(metric.width) && metric.width > 0 && metric.width < 2 && Number.isFinite(metric.indent))) continue;
+        numeralMetrics.set(font, metrics);
+      }
+      const digits = [...value].map(digit => {
+        const span = document.createElement('span');
+        span.className = 'optical-digit';
+        span.textContent = digit;
+        span.style.setProperty('--digit-width', `${metrics[Number(digit)].width}em`);
+        span.style.setProperty('--digit-indent', `${metrics[Number(digit)].indent}em`);
+        return span;
+      });
+      element.replaceChildren(...digits);
+      element.classList.add('optical-number');
+    }
+  } catch {
+    // Missing font metrics must never hide a countdown or block a fresh ETA.
+  }
+}
+function refreshCountdownSpacing() {
+  numeralMetrics.clear();
+  clearCountdownSpacing();
+  spaceCountdowns();
+}
+document.fonts?.addEventListener?.('loadingdone', refreshCountdownSpacing);
+document.addEventListener('bus:themeapplied', refreshCountdownSpacing);
 function playMotion(element, frames, options = {}, cleanup = () => {}) {
   runningAnimations.get(element)?.cancel();
   const revealingData = !classic() && document.documentElement.dataset.launch === 'revealing' &&
@@ -80,6 +139,7 @@ window.addEventListener("scroll", () => {
 // remove old-theme effects without changing any live timetable or form nodes.
 document.addEventListener('bus:themechange', () => {
   stopMotion();
+  clearCountdownSpacing();
   document.querySelectorAll('.motion-ghost, .motion-sheen').forEach(node => node.remove());
   pendingHeroHeight = null;
   journeyTransition = false;
@@ -444,6 +504,7 @@ function setMarkup(id, html) {
       entry.cancel();
   }
   element.innerHTML = html;
+  spaceCountdowns(element);
   renderedMarkup.set(id, html);
   if (id === "hero") {
     const route = element.querySelector(".route-badge")?.textContent;

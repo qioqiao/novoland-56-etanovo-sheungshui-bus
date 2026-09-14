@@ -130,20 +130,35 @@ summary { min-height: 44px; font-size: .875rem; list-style: none; }
 .source-pill { padding: 4px 10px; border: 1px solid #c7c3bc; font-size: .7rem; font-weight: 850; color: var(--paper); white-space: nowrap; }
 .source-pill.scheduled { color: var(--gold); border-color: var(--gold); }
 .source-pill.stale { color: #c7c3bc; border-style: dashed; }
-.island-main { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 28px 0 27px; }
-.island-main > div:first-child { min-width: 0; }
+.island-main { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin: 28px 0 27px; }
+/* A narrow card may give the countdown its own row instead of squeezing the
+   route label underneath the newly spaced digits. */
+.island-main > div:first-child { flex: 1 1 90px; min-width: 0; }
 /* Center the ink within the visible slanted plate, including trailing tracking.
    Equal/opposite padding offsets preserve every badge's original dimensions. */
 .route-badge { --badge-cut: 8px; --badge-pad-x: 17px; --badge-pad-y: 8px; --badge-optical-x: calc(var(--badge-cut)/4 + .03em); --badge-optical-y: .03em; display: inline-flex; align-items: center; justify-content: center; background: var(--red); color: #fff; font-family: 'Arial Black','Helvetica Neue',Arial,sans-serif; font-size: 2rem; font-weight: 950; line-height: 1.15; letter-spacing: -.06em; min-width: 68px; padding: calc(var(--badge-pad-y) - var(--badge-optical-y)) calc(var(--badge-pad-x) + var(--badge-optical-x)) calc(var(--badge-pad-y) + var(--badge-optical-y)) calc(var(--badge-pad-x) - var(--badge-optical-x)); clip-path: polygon(0 0,100% 0,calc(100% - var(--badge-cut)) 100%,0 100%); }
 .route-56A,.route-75F { background: var(--paper); color: var(--ink); }
 .route-meta { font-size: .875rem; color: #d0ccc5; margin-top: 13px; }
 .platform-note { font-size: .8125rem; color: #b4b0a8; margin-top: 6px; line-height: 1.55; overflow-wrap: anywhere; }
-.wait { display: flex; flex-shrink: 0; align-items: baseline; gap: 10px; white-space: nowrap; }
-/* Restore the last glyph's advance so tight digit tracking cannot eat the unit gap. */
-.wait strong { flex-shrink: 0; padding-inline-end: .085em; font-family: 'Arial Black','Helvetica Neue',Arial,sans-serif; font-size: clamp(5.5rem,8vw,7.2rem); font-weight: 950; font-variant-numeric: tabular-nums; letter-spacing: -.085em; line-height: .95; }
+.wait { display: flex; flex-shrink: 0; align-items: baseline; gap: 10px; margin-inline-start: auto; white-space: nowrap; }
+/* Reserve a stable reading area; ink spacing inside it is measured separately. */
+.wait strong { flex-shrink: 0; min-width: calc(2ch + .03em); text-align: right; padding-inline-end: 0; font-family: 'Arial Black','Helvetica Neue',Arial,sans-serif; font-size: clamp(5.5rem,8vw,7.2rem); font-weight: 950; font-variant-numeric: tabular-nums; font-kerning: none; letter-spacing: .015em; line-height: .95; }
 .wait > span { font-size: .875rem; font-weight: 700; color: #c7c3bc; }
 .wait.soon strong { color: var(--gold); }
-.wait.words strong { padding-inline-end: .055em; font-family: inherit; font-size: 2.6rem; letter-spacing: -.055em; font-weight: 900; }
+.wait.words strong { min-width: 0; padding-inline-end: .055em; font-family: inherit; font-size: 2.6rem; letter-spacing: -.055em; font-weight: 900; }
+/* Trim invisible sidebearings per glyph, then share one visible ink gap. This
+   closes the excessive space after "1" without crushing broad pairs like 22. */
+.wait strong.optical-number, .trip-wait strong.optical-number {
+  display: inline-block; text-align: right;
+  letter-spacing: 0; font-variant-numeric: normal;
+}
+.optical-digit {
+  display: inline-block; inline-size: var(--digit-width);
+  text-indent: var(--digit-indent); text-align: left;
+  font-variant-numeric: normal; font-feature-settings: normal;
+  font-kerning: none; letter-spacing: 0;
+}
+.optical-digit + .optical-digit { margin-inline-start: .07em; }
 .island-bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; border-top: 2px solid #4c4b46; padding-top: 17px; }
 .time-pair { display: flex; align-items: center; gap: 17px; }
 .time-block { display: flex; flex-direction: column; gap: 3px; }
@@ -163,7 +178,7 @@ summary { min-height: 44px; font-size: .875rem; list-style: none; }
 .following-head h3 { font-size: 1rem; font-weight: 900; }
 .following-head > span { font-size: .75rem; color: var(--muted); }
 .trip-list { display: grid; gap: 12px; }
-.trip-row { display: flex; align-items: center; gap: 14px; background: var(--paper); border: 2px solid var(--ink); border-left: 6px solid var(--ink); padding: 15px 16px; position: relative; }
+.trip-row { display: flex; min-width: 0; align-items: center; gap: 14px; background: var(--paper); border: 2px solid var(--ink); border-left: 6px solid var(--ink); padding: 15px 16px; position: relative; }
 .trip-row::after { content: ''; position: absolute; right: 5px; top: 4px; width: 14px; height: 3px; background: var(--red); }
 .trip-row .route-badge { --badge-pad-y: 7px; --badge-pad-x: 10px; font-size: 1.2rem; min-width: 57px; }
 .trip-row .route-56A,.trip-row .route-75F { background: var(--ink); color: var(--paper); }
@@ -172,7 +187,7 @@ summary { min-height: 44px; font-size: .875rem; list-style: none; }
 .trip-info > strong > span { color: var(--red); margin: 0 8px; font-size: .9rem; }
 .trip-info p { font-size: .8rem; color: var(--muted); margin-top: 4px; line-height: 1.6; }
 .trip-wait { display: flex; flex-shrink: 0; align-items: baseline; gap: 6px; color: var(--muted); font-size: .75rem; white-space: nowrap; }
-.trip-wait strong { flex-shrink: 0; padding-inline-end: .07em; font-family: 'Arial Black',Arial,sans-serif; font-size: 2rem; font-weight: 950; letter-spacing: -.07em; color: var(--ink); font-variant-numeric: tabular-nums; }
+.trip-wait strong { flex-shrink: 0; min-width: calc(2ch + .03em); text-align: right; padding-inline-end: 0; font-family: 'Arial Black',Arial,sans-serif; font-size: 2rem; font-weight: 950; letter-spacing: .015em; color: var(--ink); font-variant-numeric: tabular-nums; font-kerning: none; }
 .empty-list { padding: 22px 20px; font-size: .875rem; line-height: 1.75; color: var(--muted); border: 2px dashed #b3ac9f; }
 .arrival-details { margin-top: 25px; border-top: 3px solid var(--ink); padding-top: 3px; }
 .arrival-details > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; font-weight: 850; }
