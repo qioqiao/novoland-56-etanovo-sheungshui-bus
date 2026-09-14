@@ -19,7 +19,7 @@
     <link rel="manifest" href="./manifest.json?v=themes1" />
     <link rel="stylesheet" href="./styles.css?v=freshness2" data-theme-style="p5r" />
     <link rel="stylesheet" href="./motion.css?v=selection3" data-theme-style="p5r" />
-    <link rel="stylesheet" href="./launch.css?v=themes1" data-theme-style="p5r" />
+    <link rel="stylesheet" href="./launch.css?v=opening5" data-theme-style="p5r" />
     <link rel="stylesheet" href="./themes/classic/styles.css?v=freshness2" data-theme-style="classic" media="not all" />
     <link rel="stylesheet" href="./themes/classic/motion.css?v=themes1" data-theme-style="classic" media="not all" />
     <link rel="stylesheet" href="./themes/classic/launch.css?v=themes1" data-theme-style="classic" media="not all" />
@@ -33,13 +33,14 @@
           window.busLaunchFallback = setTimeout(() => {
             document.documentElement.removeAttribute('data-launch');
             document.dispatchEvent(new Event('bus:launch-timeout'));
-          }, 2600);
+          }, document.documentElement.dataset.theme === 'classic' ? 2600 : 4500);
         } catch {}
       })();
     </script>
   </head>
   <body>
     <div class="launch-screen" aria-hidden="true">
+      <div class="launch-backdrop"></div>
       <div class="launch-stage">
         <span class="brand-icon launch-placeholder"><svg class="brand-symbol-p5r" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><polygon points="0,0 32,0 32,32 0,32" fill="#101010"/><polygon points="2,7 27,2 30,26 5,30" fill="#F5F0E6"/><polygon points="4,8.5 25.5,4 27.7,24.5 6.5,27.7" fill="#E60012"/><polygon points="7.47261364,22.3 21.18630682,8.58630682 23.41369318,10.81369318 9.7,24.52738636" fill="#F5F0E6"/><polygon points="9.025,8.125 23.875,8.125 23.875,11.275 9.025,11.275" fill="#F5F0E6"/><polygon points="20.725,8.125 23.875,8.125 23.875,22.975 20.725,22.975" fill="#F5F0E6"/></svg><svg class="brand-symbol-classic" viewBox="0 0 32 32" focusable="false" aria-hidden="true"><path d="M9 23 23 9M10 9h13v13" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" /></svg></span>
       </div>
@@ -252,7 +253,7 @@
       </main>
     </div>
     <noscript>請啟用 JavaScript 以讀取實時到站時間。</noscript>
-    <script type="module" src="./launch.js?v=themes1"></script>
-    <script type="module" src="./app.js?v=selection4"></script>
+    <script type="module" src="./launch.js?v=opening5"></script>
+    <script type="module" src="./app.js?v=opening5"></script>
   </body>
 </html>

@@ -15,6 +15,11 @@ html[data-launch] .launch-screen {
   display: grid;
   place-items: center;
 }
+.launch-backdrop { position: absolute; inset: 0; background: var(--bg); }
+/* The CSS placeholder and its JS replacement share the same entrance, so a
+   cold module load cannot expose the large logo in a single frame. */
+.launch-placeholder { animation: launch-mark-in 420ms cubic-bezier(.3,0,.3,1) both; }
+@keyframes launch-mark-in { from { opacity: 0; } to { opacity: 1; } }
 .launch-placeholder { transform: scale(2.7); }
 html[data-launch] .shell { pointer-events: none; }
 html[data-launch] .shell .brand-icon { visibility: hidden; }
@@ -42,7 +47,7 @@ html[data-launch] .motion-ghost { display: none; }
   background: var(--red, #e60012);
   clip-path: polygon(7% 20%, 100% 0, 91% 78%, 0 100%);
   transform: translate(-50%, -50%);
-  animation: launch-red-cut 240ms cubic-bezier(.16,.86,.22,1) both;
+  animation: launch-red-cut 520ms cubic-bezier(.3,0,.3,1) both;
 }
 .launch-slash-black {
   z-index: 2;
@@ -51,26 +56,26 @@ html[data-launch] .motion-ghost { display: none; }
   background: var(--black, #101010);
   clip-path: polygon(2% 0, 100% 13%, 94% 100%, 0 86%);
   transform: translate(-50%, -50%);
-  animation: launch-black-cut 260ms cubic-bezier(.16,.86,.22,1) both;
+  animation: launch-black-cut 540ms cubic-bezier(.3,0,.3,1) both;
 }
-html[data-launch="docking"] .launch-slash-red { animation: launch-red-exit 240ms cubic-bezier(.65,0,.4,1) both; }
-html[data-launch="docking"] .launch-slash-black { animation: launch-black-exit 200ms cubic-bezier(.65,0,.4,1) both; }
+html[data-launch="docking"] .launch-slash-red { animation: launch-red-exit 560ms cubic-bezier(.5,0,.4,1) both; }
+html[data-launch="docking"] .launch-slash-black { animation: launch-black-exit 520ms cubic-bezier(.5,0,.4,1) both; }
 html[data-launch="revealing"] .launch-slash { display: none; }
 @keyframes launch-red-cut {
-  from { transform: translate(-110%, -40%); }
-  to { transform: translate(-50%, -50%); }
+  from { opacity: 0; transform: translate(-110%, -40%); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
 }
 @keyframes launch-black-cut {
-  from { transform: translate(10%, -56%); }
-  to { transform: translate(-50%, -50%); }
+  from { opacity: 0; transform: translate(10%, -56%); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
 }
 @keyframes launch-red-exit {
-  from { transform: translate(-50%, -50%); }
-  to { transform: translate(85%, -75%); }
+  from { opacity: 1; transform: translate(-50%, -50%); }
+  to { opacity: 0; transform: translate(85%, -75%); }
 }
 @keyframes launch-black-exit {
-  from { transform: translate(-50%, -50%); }
-  to { transform: translate(-185%, -25%); }
+  from { opacity: 1; transform: translate(-50%, -50%); }
+  to { opacity: 0; transform: translate(-185%, -25%); }
 }
 @media (prefers-reduced-motion: reduce) {
   html[data-launch] .launch-screen { display: none; }

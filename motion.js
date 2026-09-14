@@ -13,9 +13,17 @@ const classic = () => document.documentElement.dataset.theme === 'classic';
 const opening = () => document.documentElement.hasAttribute('data-launch');
 function playMotion(element, frames, options = {}, cleanup = () => {}) {
   runningAnimations.get(element)?.cancel();
-  if (!element?.animate || motionPreference?.matches || document.hidden || opening()) {
+  const revealingData = !classic() && document.documentElement.dataset.launch === 'revealing' &&
+    !!element?.closest?.('.island, #trips, #arrivals');
+  if (!element?.animate || motionPreference?.matches || document.hidden || (opening() && !revealingData)) {
     cleanup();
     return;
+  }
+  if (revealingData) {
+    // A response may arrive after the card starts appearing. Reveal the real
+    // new data locally without exposing cut masks or detached old-text copies.
+    frames = frames.map(({ clipPath, 'clip-path': mask, ...frame }) => frame);
+    options = { ...options, duration: Math.max(480, options.duration || 0), easing: 'cubic-bezier(.3,0,.3,1)' };
   }
   let animation;
   try {
@@ -63,7 +71,11 @@ document.addEventListener("visibilitychange", () => {
   if (document.hidden) stopMotion();
 });
 window.addEventListener("resize", stopContentMotion);
-window.addEventListener("scroll", stopContentMotion, { passive: true });
+window.addEventListener("scroll", () => {
+  // During the intro there are no detached text ghosts to realign. Layout
+  // anchoring must not cut short the permitted late-arrival fades either.
+  if (!opening()) stopContentMotion();
+}, { passive: true });
 // The controller sends this before replacing theme CSS. Keep one engine and
 // remove old-theme effects without changing any live timetable or form nodes.
 document.addEventListener('bus:themechange', () => {
